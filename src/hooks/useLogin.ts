@@ -1,0 +1,55 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
+
+export const useLogin = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { login } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const loginByEmail = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
+    try {
+      setLoading(true);
+
+      // 📧 Email login - authenticate directly
+      await login(email, password);
+
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+      });
+
+      setLoading(false);
+      navigate("/");
+
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description:
+          error?.response?.data?.message ||
+          "Invalid email or password. Please try again.",
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
+  };
+
+  const loginByPhone = () => {
+    // 📞 Phone login - redirect to OTP verification
+    navigate("/verify-otp");
+  };
+
+  return {
+    loginByEmail,
+    loginByPhone,
+    loading,
+  };
+};

@@ -1,0 +1,222 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* BharatAbhiyan Design System - Based on Logo Colors */
+    --background: 210 20% 98%;
+    --foreground: 224 41% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 224 41% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 41% 20%;
+
+    /* Saffron/Orange Primary - from logo "Bharat" text */
+    --primary: 24 90% 54%;
+    --primary-dark: 24 85% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Navy Blue Secondary - from logo lion icon */
+    --secondary: 224 41% 29%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 224 20% 50%;
+
+    /* India Green Accent - from logo "Abhiyan" text */
+    --accent: 115 89% 28%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success uses India Green */
+    --success: 115 89% 28%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 224 20% 90%;
+    --input: 224 20% 90%;
+    --ring: 24 90% 54%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --radius-sm: 0.5rem;
+    --radius-md: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+
+    /* Gradients */
+    --gradient-saffron: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-dark)) 100%);
+    --gradient-navy: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(224 41% 22%) 100%);
+    --gradient-background: linear-gradient(135deg, hsl(210 20% 98%) 0%, hsl(210 20% 94%) 100%);
+
+    /* Shadows - Updated to match new primary */
+    --shadow-card: 0 20px 60px rgba(43, 58, 103, 0.08);
+    --shadow-button: 0 4px 14px rgba(243, 112, 33, 0.35);
+    --shadow-input-focus: 0 0 0 3px rgba(243, 112, 33, 0.15);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 224 41% 29%;
+    --sidebar-primary: 224 41% 29%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 224 20% 95%;
+    --sidebar-accent-foreground: 224 41% 29%;
+    --sidebar-border: 224 20% 91%;
+    --sidebar-ring: 24 90% 54%;
+  }
+
+  .dark {
+    --background: 224 41% 10%;
+    --foreground: 210 40% 98%;
+
+    --card: 224 41% 12%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 224 41% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 24 90% 54%;
+    --primary-dark: 24 85% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 224 35% 35%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 224 33% 17%;
+    --muted-foreground: 224 20% 65%;
+
+    --accent: 115 70% 35%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 115 70% 35%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 224 33% 20%;
+    --input: 224 33% 20%;
+    --ring: 24 90% 54%;
+
+    --sidebar-background: 224 41% 10%;
+    --sidebar-foreground: 210 40% 95%;
+    --sidebar-primary: 24 90% 54%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 224 33% 17%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 224 33% 20%;
+    --sidebar-ring: 24 90% 54%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  html {
+    font-family: 'DM Sans', sans-serif;
+  }
+}
+
+@layer components {
+  .auth-card {
+    @apply bg-card rounded-xl shadow-card p-10 w-full max-w-[420px];
+    box-shadow: var(--shadow-card);
+  }
+
+  .btn-primary {
+    @apply h-12 w-full rounded-lg text-base font-semibold text-primary-foreground transition-all duration-200;
+    background: var(--gradient-saffron);
+    box-shadow: var(--shadow-button);
+  }
+
+  .btn-primary:hover {
+    @apply scale-[1.02];
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.45);
+  }
+
+  .btn-primary:active {
+    @apply scale-[0.98];
+  }
+
+  .btn-primary:disabled {
+    @apply opacity-60 cursor-not-allowed scale-100;
+  }
+
+  .input-field {
+    @apply h-12 w-full rounded-lg border-2 border-input bg-background px-4 text-base transition-all duration-200 placeholder:text-muted-foreground;
+  }
+
+  .input-field:focus {
+    @apply border-primary outline-none;
+    box-shadow: var(--shadow-input-focus);
+  }
+
+  .input-field.error {
+    @apply border-destructive;
+  }
+
+  .otp-box {
+    @apply w-12 h-14 text-center text-2xl font-semibold rounded-lg border-2 border-input bg-background transition-all duration-200;
+  }
+
+  .otp-box:focus {
+    @apply border-primary outline-none;
+    box-shadow: var(--shadow-input-focus);
+  }
+
+  .fee-badge {
+    @apply flex items-center gap-4 p-4 rounded-lg border;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.08) 0%, hsl(var(--primary) / 0.04) 100%);
+    border-color: hsl(var(--primary) / 0.25);
+  }
+
+  .payment-option {
+    @apply flex items-center gap-4 p-4 rounded-lg border-2 border-input cursor-pointer transition-all duration-200;
+  }
+
+  .payment-option.selected {
+    @apply border-primary bg-primary/5;
+  }
+
+  .tab-container {
+    @apply flex p-1 rounded-lg bg-muted;
+  }
+
+  .tab-item {
+    @apply flex-1 py-2.5 px-4 rounded-md text-sm font-medium text-muted-foreground transition-all duration-200 cursor-pointer text-center flex items-center justify-center gap-2;
+  }
+
+  .tab-item.active {
+    @apply bg-card text-foreground shadow-sm;
+  }
+}
+
+@layer utilities {
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+
+  .shadow-button {
+    box-shadow: var(--shadow-button);
+  }
+
+  .gradient-saffron {
+    background: var(--gradient-saffron);
+  }
+
+  .gradient-background {
+    background: var(--gradient-background);
+  }
+}
