@@ -26,10 +26,15 @@ const Header = () => {
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Services", href: "/services", hasDropdown: true },
-    { label: "Become a Provider", href: "/service-provider-registration" },
+
+    ...(user
+      ? [{ label: "Become a Provider", href: "/service-provider-registration" }]
+      : []),
+
     { label: "About Us", href: "/about" },
     { label: "Contact", href: "/contact" },
   ];
+
 
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";

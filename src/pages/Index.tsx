@@ -35,8 +35,13 @@ import heroBg from "@/assets/hero-bg.png";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
+import { useAuth } from "@/context/AuthContext";
+
+
+
 
 const Index = () => {
+  const { user } = useAuth();
   const quickLinks = [
     "Find a verified plumber nearby",
     "Access government schemes",
@@ -167,11 +172,16 @@ const Index = () => {
                 <Button className="bg-primary hover:bg-primary-dark text-primary-foreground px-8 py-6 text-lg rounded-lg">
                   Find Services <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
-                <Link to="/service-provider-registration">
-                  <Button variant="outline" className="border-secondary-foreground/30 bg-transparent text-secondary-foreground hover:bg-secondary-foreground/10 px-8 py-6 text-lg rounded-lg">
-                    Become a Provider
-                  </Button>
-                </Link>
+                {user && (
+                  <Link to="/service-provider-registration">
+                    <Button
+                      variant="outline"
+                      className="border-secondary-foreground/30 bg-transparent text-secondary-foreground hover:bg-secondary-foreground/10 px-8 py-6 text-lg rounded-lg"
+                    >
+                      Become a Provider
+                    </Button>
+                  </Link>
+                )}
               </div>
 
               <div className="flex gap-8 pt-4">
@@ -475,7 +485,17 @@ const Index = () => {
                 <li><Link to="#" className="hover:text-primary transition-colors">Find Providers</Link></li>
                 <li><Link to="#" className="hover:text-primary transition-colors">All Categories</Link></li>
                 <li><Link to="#" className="hover:text-primary transition-colors">Government Schemes</Link></li>
-                <li><Link to="/service-provider-registration" className="hover:text-primary transition-colors">Become a Provider</Link></li>
+                {user && (
+                  <li>
+                    <Link
+                      to="/service-provider-registration"
+                      className="hover:text-primary transition-colors"
+                    >
+                      Become a Provider
+                    </Link>
+                  </li>
+                )}
+
                 <li><Link to="#" className="hover:text-primary transition-colors">Captain Program</Link></li>
               </ul>
             </div>
