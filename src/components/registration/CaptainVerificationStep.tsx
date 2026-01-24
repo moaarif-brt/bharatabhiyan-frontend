@@ -22,7 +22,7 @@ interface CaptainVerificationStepProps {
   profile: {
     application_id?: string | null;
     verification_status: VerificationStatus;
-    verified_by?: string | null;
+    verified_by_name?: string | null;
     verification_date?: string | null;
     rejection_reason?: string | null;
     submitted_at?: string | null;
@@ -71,7 +71,7 @@ const CaptainVerificationStep = ({
   const {
     verification_status,
     application_id,
-    verified_by,
+    verified_by_name,
     verification_date,
     rejection_reason,
     submitted_at,
@@ -226,7 +226,7 @@ const CaptainVerificationStep = ({
           </div>
           <div className="flex justify-between items-center py-2 border-b">
             <span className="text-muted-foreground">Verified By</span>
-            <span className="font-semibold">{val(verified_by)}</span>
+            <span className="font-semibold">{val(verified_by_name)}</span>
           </div>
           <div className="flex justify-between items-center py-2">
             <span className="text-muted-foreground">Verification Date</span>
@@ -287,7 +287,7 @@ const CaptainVerificationStep = ({
         </div>
         <div className="flex justify-between items-center py-2 border-b">
           <span className="text-muted-foreground">Verified By</span>
-          <span className="font-semibold">{val(verified_by)}</span>
+          <span className="font-semibold">{val(verified_by_name)}</span>
         </div>
         <div className="flex justify-between items-center py-2">
           <span className="text-muted-foreground">Verification Date</span>
