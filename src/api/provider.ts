@@ -20,3 +20,13 @@ export const submitProviderProfile = (data: FormData) =>
 
 export const fetchProviderProfile = () =>
   api.get("/providers/profile/me");
+
+
+export const fetchServiceCategories = () =>
+  api.get("/providers/categories");
+
+export const fetchServiceTypes = () =>
+  api.get("/providers/service-types");
+
+export const fetchServiceAreas = (cityId: string) =>
+  api.get(`/providers/service-areas?location_id=${cityId}`);

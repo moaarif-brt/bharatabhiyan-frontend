@@ -1,131 +1,141 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface BasicInfoStepProps {
   data: {
-    fullName: string;
-    email: string;
-    phone: string;
-    businessName: string;
-    businessType: string;
-    address: string;
-    city: string;
-    state: string;
+    whatsapp_number: string;
+    business_name: string;
+    experience: string; // 🔑 backend enum
+    business_address: string;
+    city_id: string;
     pincode: string;
   };
   onChange: (field: string, value: string) => void;
 }
 
+/* ---------------- EXPERIENCE OPTIONS (BACKEND ALIGNED) ---------------- */
+
+const EXPERIENCE_OPTIONS = [
+  { value: "LESS_THAN_1", label: "Less than 1 year" },
+  { value: "1_TO_3", label: "1-3 years" },
+  { value: "3_TO_5", label: "3-5 years" },
+  { value: "5_TO_10", label: "5-10 years" },
+  { value: "MORE_THAN_10", label: "More than 10 years" },
+];
+
+const cities = [
+  { id: "1", name: "Bhiwadi" },
+];
+
 const BasicInfoStep = ({ data, onChange }: BasicInfoStepProps) => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground mb-1">Basic Information</h2>
-        <p className="text-sm text-muted-foreground">Enter your personal and business details</p>
+        <h2 className="text-lg font-semibold text-foreground mb-1">
+          Basic Information
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Enter your business and contact details
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* WhatsApp Number */}
         <div className="space-y-2">
-          <Label htmlFor="fullName">Full Name *</Label>
+          <Label>WhatsApp Number *</Label>
           <Input
-            id="fullName"
-            placeholder="Enter your full name"
-            value={data.fullName}
-            onChange={(e) => onChange("fullName", e.target.value)}
+            placeholder="Enter WhatsApp number"
+            value={data.whatsapp_number}
+            onChange={(e) =>
+              onChange("whatsapp_number", e.target.value)
+            }
           />
         </div>
 
+        {/* Business Name */}
         <div className="space-y-2">
-          <Label htmlFor="email">Email Address *</Label>
+          <Label>Business Name *</Label>
           <Input
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            value={data.email}
-            onChange={(e) => onChange("email", e.target.value)}
+            placeholder="Enter business name"
+            value={data.business_name}
+            onChange={(e) =>
+              onChange("business_name", e.target.value)
+            }
           />
         </div>
 
+        {/* Experience */}
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number *</Label>
-          <Input
-            id="phone"
-            placeholder="Enter your phone number"
-            value={data.phone}
-            onChange={(e) => onChange("phone", e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="businessName">Business Name *</Label>
-          <Input
-            id="businessName"
-            placeholder="Enter your business name"
-            value={data.businessName}
-            onChange={(e) => onChange("businessName", e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="businessType">Business Type *</Label>
-          <Select value={data.businessType} onValueChange={(value) => onChange("businessType", value)}>
+          <Label>Experience *</Label>
+          <Select
+            value={data.experience}
+            onValueChange={(value) =>
+              onChange("experience", value)
+            }
+          >
             <SelectTrigger>
-              <SelectValue placeholder="Select business type" />
+              <SelectValue placeholder="Select experience" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="individual">Individual</SelectItem>
-              <SelectItem value="partnership">Partnership</SelectItem>
-              <SelectItem value="pvtLtd">Private Limited</SelectItem>
-              <SelectItem value="llp">LLP</SelectItem>
-              <SelectItem value="proprietorship">Proprietorship</SelectItem>
+              {EXPERIENCE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="address">Address *</Label>
-          <Input
-            id="address"
-            placeholder="Enter your business address"
-            value={data.address}
-            onChange={(e) => onChange("address", e.target.value)}
-          />
-        </div>
-
+        {/* City */}
         <div className="space-y-2">
-          <Label htmlFor="city">City *</Label>
-          <Input
-            id="city"
-            placeholder="Enter city"
-            value={data.city}
-            onChange={(e) => onChange("city", e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="state">State *</Label>
-          <Select value={data.state} onValueChange={(value) => onChange("state", value)}>
+          <Label>City *</Label>
+          <Select
+            value={data.city_id}
+            onValueChange={(value) =>
+              onChange("city_id", value)
+            }
+          >
             <SelectTrigger>
-              <SelectValue placeholder="Select state" />
+              <SelectValue placeholder="Select city" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="maharashtra">Maharashtra</SelectItem>
-              <SelectItem value="karnataka">Karnataka</SelectItem>
-              <SelectItem value="delhi">Delhi</SelectItem>
-              <SelectItem value="tamilnadu">Tamil Nadu</SelectItem>
-              <SelectItem value="gujarat">Gujarat</SelectItem>
+              {cities.map((city) => (
+                <SelectItem key={city.id} value={city.id}>
+                  {city.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="pincode">Pincode *</Label>
+        {/* Business Address */}
+        <div className="space-y-2 md:col-span-2">
+          <Label>Business Address *</Label>
           <Input
-            id="pincode"
+            placeholder="Enter business address"
+            value={data.business_address}
+            onChange={(e) =>
+              onChange("business_address", e.target.value)
+            }
+          />
+        </div>
+
+        {/* Pincode */}
+        <div className="space-y-2">
+          <Label>Pincode *</Label>
+          <Input
             placeholder="Enter pincode"
             value={data.pincode}
-            onChange={(e) => onChange("pincode", e.target.value)}
+            onChange={(e) =>
+              onChange("pincode", e.target.value)
+            }
           />
         </div>
       </div>

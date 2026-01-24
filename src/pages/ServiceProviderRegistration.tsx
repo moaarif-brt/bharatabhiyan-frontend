@@ -17,6 +17,9 @@ import {
   saveProviderDraft,
   submitProviderProfile,
   fetchProviderProfile,
+  fetchServiceCategories,
+  fetchServiceTypes,
+  fetchServiceAreas,
 } from "@/api/provider";
 import { buildDraftPayload } from "@/utils/buildDraftPayload";
 
@@ -28,62 +31,180 @@ const ServiceProviderRegistration = () => {
   const [selectedPlan, setSelectedPlan] = useState("yearly");
   const [profile, setProfile] = useState<any>(null);
 
+  const [lookups, setLookups] = useState({
+    cities: [{ id: "1", name: "Bhiwadi" }],
+    categories: [] as any[],
+    serviceTypes: [] as any[],
+    serviceAreas: [] as any[],
+  });
+
   const [basicInfo, setBasicInfo] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    businessName: "",
-    businessType: "",
-    address: "",
-    city: "",
-    state: "",
+    whatsapp_number: "",
+    business_name: "",
+    experience: "",
+    business_address: "",
+    city_id: "",
     pincode: "",
   });
 
   const [serviceDetails, setServiceDetails] = useState({
-    serviceCategory: "",
+    serviceCategory: "",        // category_id
+    experience: "",             // service_type_id
+    serviceAreas: "",           // comma separated ids
     serviceDescription: "",
-    experience: "",
-    availability: [] as string[],
-    workingHours: "",
-    serviceAreas: "",
   });
 
+
+
   const [documents, setDocuments] = useState({
-    idProof: null as File | null,
-    addressProof: null as File | null,
-    businessLicense: null as File | null,
-    certifications: [] as File[],
+    aadhaar_front: null as File | null,
+    aadhaar_back: null as File | null,
+
+    address_proof_type: "",
+    address_proof: null as File | null,
+
+    profile_photo: null as File | null,
+    skill_certificate: [] as File[],
+  });
+
+  const [documentMeta, setDocumentMeta] = useState({
+    aadhaar_front_url: "",
+    aadhaar_back_url: "",
+    address_proof_url: "",
+    profile_photo_url: "",
+    skill_certificate_url: "",
   });
 
   /* ---------------- BACKEND DRIVEN STEP RESOLUTION ---------------- */
 
   const resolveStepFromProfile = (data: any) => {
+    if (!data) return 1;
+
+    const hasAllRequired =
+      data.whatsapp_number &&
+      data.business_name &&
+      data.experience &&
+      data.business_address &&
+      data.city &&
+      data.pincode &&
+      data.service_category &&
+      data.service_type &&
+      data.service_description &&
+      data.service_areas_list?.length &&
+      data.aadhaar_front &&
+      data.aadhaar_back &&
+      data.address_proof &&
+      data.profile_photo;
+
     switch (data.verification_status) {
       case "DRAFT":
+        return hasAllRequired ? 5 : 1;
+
       case "REJECTED":
-        return 1;
+        return 5;
+
       case "PENDING_VERIFICATION":
         return 5;
+
       case "VERIFIED":
-        return data.is_paid ? 7 : 6;
+        return data.is_paid ? 7 : 5;
+
       case "ACTIVE":
         return 7;
+
       default:
         return 1;
     }
+  };
+
+  const hydrateLookups = async (cityId?: string) => {
+    try {
+      const [catRes, typeRes, areaRes] = await Promise.all([
+        fetchServiceCategories(),
+        fetchServiceTypes(),
+        cityId ? fetchServiceAreas(cityId) : Promise.resolve({ data: { data: [] } }),
+      ]);
+
+      setLookups({
+        cities: lookups.cities, // already there
+        categories: catRes.data.data || [],
+        serviceTypes: typeRes.data.data || [],
+        serviceAreas: areaRes.data.data || [],
+      });
+    } catch {
+      // silent fail (review page should never crash)
+    }
+  };
+
+
+  const hydrateFormsFromProfile = (data: any) => {
+    // STEP 1
+    setBasicInfo({
+      whatsapp_number: data.whatsapp_number || "",
+      business_name: data.business_name || "",
+      experience: data.experience || "",
+      business_address: data.business_address || "",
+      city_id: String(data.city || ""),
+      pincode: data.pincode || "",
+    });
+
+    // STEP 2
+    setServiceDetails({
+      serviceCategory: String(data.service_category || ""),
+      experience: String(data.service_type || ""),
+      serviceAreas: data.service_areas_list
+        ? data.service_areas_list.map((a: any) => a.id).join(",")
+        : "",
+      serviceDescription: data.service_description || "",
+    });
+
+    // STEP 3 (FILES — only metadata, NOT File objects)
+    setDocuments((prev) => ({
+      ...prev,
+      address_proof_type: data.address_proof_type || "",
+    }));
+
+    setDocumentMeta({
+      aadhaar_front_url: data.aadhaar_front || "",
+      aadhaar_back_url: data.aadhaar_back || "",
+      address_proof_url: data.address_proof || "",
+      profile_photo_url: data.profile_photo || "",
+      skill_certificate_url: data.skill_certificate || "",
+    });
+
+
+  };
+
+  const handleClearDocumentMeta = (key: string) => {
+    setDocumentMeta((p) => ({ ...p, [key]: "" }));
   };
 
   const hydrateProfile = async () => {
     try {
       const res = await fetchProviderProfile();
       const data = res.data.data;
+
       setProfile(data);
-      setCurrentStep(resolveStepFromProfile(data));
+      hydrateFormsFromProfile(data);
+      await hydrateLookups(String(data.city));
+
+      const step = resolveStepFromProfile(data);
+      setCurrentStep(step);
     } catch {
-      // user has not started registration
+      // New user → stay on step 1
+      setCurrentStep(1);
     }
   };
+  const isDraft = profile?.verification_status === "DRAFT" ||
+    profile?.verification_status === "PENDING_VERIFICATION" ;
+
+  const isLocked =
+  profile &&
+  ["DRAFT", "PENDING_VERIFICATION", "VERIFIED", "ACTIVE"].includes(
+    profile.verification_status
+  );
+
+
 
   useEffect(() => {
     hydrateProfile();
@@ -114,9 +235,6 @@ const ServiceProviderRegistration = () => {
   const handleNext = async () => {
     try {
       const payload = buildDraftPayload({
-        whatsapp_number: basicInfo.phone,
-        business_name: basicInfo.businessName,
-        business_address: basicInfo.address,
 
         service_category: serviceDetails.serviceCategory,
         service_description: serviceDetails.serviceDescription,
@@ -124,7 +242,7 @@ const ServiceProviderRegistration = () => {
         service_areas: serviceDetails.serviceAreas,
 
         ...documents,
-      });
+      }); 
 
       setCurrentStep((s) => s + 1);
 
@@ -155,29 +273,51 @@ const ServiceProviderRegistration = () => {
     }
 
     try {
-      const payload = buildDraftPayload({
-        terms_accepted: true, // 🔑 REQUIRED
+      const fd = new FormData();
 
-        whatsapp_number: basicInfo.phone,
-        business_name: basicInfo.businessName,
-        business_address: basicInfo.address,
-        pincode: basicInfo.pincode,
+      // BASIC INFO
+      fd.append("whatsapp_number", basicInfo.whatsapp_number);
+      fd.append("business_name", basicInfo.business_name);
+      fd.append("experience", basicInfo.experience);
+      fd.append("business_address", basicInfo.business_address);
+      fd.append("city", basicInfo.city_id);
+      fd.append("pincode", basicInfo.pincode);
 
-        service_category: serviceDetails.serviceCategory,
-        service_description: serviceDetails.serviceDescription,
-        experience: serviceDetails.experience,
-        service_areas: serviceDetails.serviceAreas,
-
-        ...documents,
+      // SERVICE
+      fd.append("service_category", serviceDetails.serviceCategory);
+      fd.append("service_type", serviceDetails.experience);
+      fd.append("service_description", serviceDetails.serviceDescription);
+      serviceDetails.serviceAreas.split(",").filter(Boolean).forEach((areaId) => {
+        fd.append("service_areas", areaId);
       });
 
-      await submitProviderProfile(payload);
+
+      // DOCUMENTS
+      if (documents.aadhaar_front)
+        fd.append("aadhaar_front", documents.aadhaar_front);
+
+      if (documents.aadhaar_back)
+        fd.append("aadhaar_back", documents.aadhaar_back);
+
+      fd.append("address_proof_type", documents.address_proof_type);
+
+      if (documents.address_proof)
+        fd.append("address_proof", documents.address_proof);
+
+      if (documents.profile_photo)
+        fd.append("profile_photo", documents.profile_photo);
+
+      documents.skill_certificate.forEach((f) =>
+        fd.append("skill_certificate", f)
+      );
+
+      await submitProviderProfile(fd);
       await hydrateProfile();
 
     } catch (err: any) {
       toast({
         title: "Submission failed",
-        description: err.response?.data?.message,
+        description: err.response?.data?.message || "Server error",
         variant: "destructive",
       });
     }
@@ -252,24 +392,30 @@ const ServiceProviderRegistration = () => {
 
           <div className="lg:col-span-2">
             <div className="bg-card border rounded-lg p-6">
-              {currentStep === 1 && (
+              {currentStep === 1 && !isLocked &&(
                 <BasicInfoStep
                   data={basicInfo}
                   onChange={handleBasicInfoChange}
                 />
               )}
 
-              {currentStep === 2 && (
+              {currentStep === 2 && !isLocked &&(
                 <ServiceDetailsStep
                   data={serviceDetails}
                   onChange={handleServiceDetailsChange}
+                  cityId={basicInfo.city_id}
+                  onLookupsReady={(l) =>
+                    setLookups((p) => ({ ...p, ...l }))
+                  }
                 />
               )}
 
-              {currentStep === 3 && (
+              {currentStep === 3 && !isLocked &&(
                 <DocumentsStep
                   data={documents}
+                  documentMeta={documentMeta}
                   onChange={handleDocumentsChange}
+                  onClearMeta={handleClearDocumentMeta}
                 />
               )}
 
@@ -278,16 +424,23 @@ const ServiceProviderRegistration = () => {
                   basicInfo={basicInfo}
                   serviceDetails={serviceDetails}
                   documents={documents}
+                  documentMeta={documentMeta}
+                  lookups={lookups}
+                  readOnly={isDraft}
                   termsAccepted={termsAccepted}
                   onTermsChange={setTermsAccepted}
                 />
               )}
 
-              {currentStep === 5 && (
+
+              {currentStep === 5 && profile && (
                 <CaptainVerificationStep
-                  status={profile?.verification_status}
+                  profile={profile}
+                  onViewApplication={() => setCurrentStep(4)} // ✅ ADD
+                  onResubmit={() => setCurrentStep(1)}
                 />
               )}
+
 
               {currentStep === 6 && (
                 <PaymentStep
@@ -298,7 +451,8 @@ const ServiceProviderRegistration = () => {
 
               {currentStep === 7 && <SuccessStep selectedPlan={selectedPlan} />}
 
-              {currentStep <= 4 && (
+              {/* NORMAL FLOW (NOT DRAFT) */}
+              {currentStep <= 4 && !isDraft && (
                 <div className="flex justify-between mt-8 pt-6 border-t">
                   <Button
                     variant="outline"
@@ -317,6 +471,16 @@ const ServiceProviderRegistration = () => {
                   )}
                 </div>
               )}
+
+              {/* DRAFT FLOW (ONLY CHECK STATUS) */}
+              {currentStep === 4 && isDraft && (
+                <div className="flex justify-end mt-8 pt-6 border-t">
+                  <Button onClick={() => setCurrentStep(5)}>
+                    Check Application Status
+                  </Button>
+                </div>
+              )}
+
             </div>
           </div>
 
