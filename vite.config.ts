@@ -2,23 +2,28 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
-export default defineConfig(() => ({
-  server: {
-    host: "localhost",
-    port: 8080,
-    strictPort: true,
-    proxy: {
-      "/api": {
-        target: "https://bharatabhiyan.onrender.com",
-        changeOrigin: true,
-        secure: false,
-      },
-    },
-  },
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
+
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+
+  server:
+    mode === "development"
+      ? {
+          host: "localhost",
+          port: 8080,
+          strictPort: true,
+          proxy: {
+            "/api": {
+              target: "https://bharatabhiyan.onrender.com",
+              changeOrigin: true,
+              secure: false,
+            },
+          },
+        }
+      : undefined,
 }));
