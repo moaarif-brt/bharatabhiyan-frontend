@@ -8,7 +8,6 @@ import ServiceDetailsStep from "@/components/registration/ServiceDetailsStep";
 import DocumentsStep from "@/components/registration/DocumentsStep";
 import ReviewStep from "@/components/registration/ReviewStep";
 import CaptainVerificationStep from "@/components/registration/CaptainVerificationStep";
-import PaymentStep from "@/components/registration/PaymentStep";
 import SuccessStep from "@/components/registration/SuccessStep";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -440,14 +439,7 @@ const ServiceProviderRegistration = () => {
                   onResubmit={() => setCurrentStep(1)}
                 />
               )}
-
-
-              {currentStep === 6 && (
-                <PaymentStep
-                  selectedPlan={selectedPlan}
-                  onComplete={handlePaymentComplete}
-                />
-              )}
+            
 
               {currentStep === 7 && <SuccessStep selectedPlan={selectedPlan} />}
 

@@ -21,6 +21,7 @@ import Services from "./pages/Services";
 import HomeServices from "./pages/services/HomeServices";
 import GovernmentServices from "./pages/services/GovernmentServices";
 import EmergencyServices from "./pages/services/EmergencyServices";
+import HomeServiceTypes from "./pages/services/HomeServiceTypes";
 import ServiceProviderListing from "./pages/services/ServiceProviderListing";
 import ServiceProviderProfile from "./pages/services/ServiceProviderProfile";
 import PostPaymentChoice from "./pages/PostPaymentChoice";
@@ -63,8 +64,10 @@ const App = () => (
             <Route path="/help/faqs" element={<FAQs />} />
             <Route path="/service-provider-registration" element={<ServiceProviderRegistration />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/services/home/category/:categoryId" element={<HomeServiceTypes />} />
             <Route path="/services/home" element={<HomeServices />} />
             <Route path="/services/home/:serviceType" element={<ServiceProviderListing />} />
+            <Route path="/services/home/category/:categoryId/service/:serviceType" element={<ServiceProviderListing />} />
             <Route path="/services/home/:serviceType/provider/:providerId" element={<ServiceProviderProfile />} />
             <Route path="/services/government" element={<GovernmentServices />} />
             <Route path="/services/emergency" element={<EmergencyServices />} />

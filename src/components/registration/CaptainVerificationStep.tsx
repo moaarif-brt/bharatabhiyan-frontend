@@ -59,15 +59,28 @@ const CaptainVerificationStep = ({
       setPaying(true);
       const res = await createRegistrationPayment(user.id);
 
-      if (res?.payment_url) {
-        window.location.href = res.payment_url;
+      let url = res?.payment_url;
+
+      if (!url) {
+        throw new Error("Payment URL missing from backend");
       }
+
+      // ✅ FIX: normalize URL
+      if (!/^https?:\/\//i.test(url)) {
+        url = `https://${url}`;
+      }
+
+      // 🔐 HARD redirect (correct for payments)
+      window.location.replace(url);
+
     } catch (err) {
       console.error("Payment initiation failed", err);
     } finally {
       setPaying(false);
     }
   };
+
+
   const {
     verification_status,
     application_id,
@@ -154,10 +167,10 @@ const CaptainVerificationStep = ({
             <span className="text-muted-foreground">Application ID</span>
             <span className="font-semibold">{val(application_id)}</span>
           </div>
-          <div className="flex justify-between items-center py-2 border-b">
+          {/* <div className="flex justify-between items-center py-2 border-b">
             <span className="text-muted-foreground">Submitted On</span>
             <span className="font-semibold">{dateVal(submitted_at)}</span>
-          </div>
+          </div> */}
           <div className="flex justify-between items-center py-2">
             <span className="text-muted-foreground">Status</span>
             <span className="font-semibold text-amber-600">

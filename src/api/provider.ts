@@ -30,3 +30,4 @@ export const fetchServiceTypes = () =>
 
 export const fetchServiceAreas = (cityId: string) =>
   api.get(`/providers/service-areas?location_id=${cityId}`);
+
