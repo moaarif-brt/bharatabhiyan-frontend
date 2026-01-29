@@ -1,13 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Wrench,
@@ -31,8 +24,8 @@ import {
 
 interface ServiceDetailsStepProps {
   data: {
-    serviceCategory: string;      // category id
-    experience: string;           // service_type id
+    serviceCategory: string;      // comma separated category ids
+    experience: string;           // comma separated service_type ids
     serviceAreas: string;         // comma separated ids
     serviceDescription: string;
     availability: string[];
@@ -90,7 +83,7 @@ const ServiceDetailsStep = ({
     }
   }, [cityId]);
 
-  /* ---------------- LOOKUP SYNC (FIXED) ---------------- */
+  /* ---------------- LOOKUP SYNC ---------------- */
 
   useEffect(() => {
     onLookupsReady?.({
@@ -102,20 +95,57 @@ const ServiceDetailsStep = ({
 
   /* ---------------- DERIVED DATA ---------------- */
 
+  const selectedCategories = useMemo(() =>
+    data.serviceCategory ? data.serviceCategory.split(",").filter(Boolean) : []
+    , [data.serviceCategory]);
+
+  const selectedTypes = useMemo(() =>
+    data.experience ? data.experience.split(",").filter(Boolean) : []
+    , [data.experience]);
+
   const filteredServiceTypes = useMemo(() => {
     return serviceTypes.filter(
-      (t) => String(t.category) === String(data.serviceCategory)
+      (t) => selectedCategories.includes(String(t.category))
     );
-  }, [serviceTypes, data.serviceCategory]);
+  }, [serviceTypes, selectedCategories]);
 
-  const selectedAreas = data.serviceAreas
-    ? data.serviceAreas.split(",").filter(Boolean)
-    : [];
+  const selectedAreas = useMemo(() =>
+    data.serviceAreas ? data.serviceAreas.split(",").filter(Boolean) : []
+    , [data.serviceAreas]);
+
+  /* ---------------- HANDLERS ---------------- */
+
+  const handleCategoryToggle = (categoryId: string) => {
+    const idStr = String(categoryId);
+    const updated = selectedCategories.includes(idStr)
+      ? selectedCategories.filter((id) => id !== idStr)
+      : [...selectedCategories, idStr];
+
+    onChange("serviceCategory", updated.join(","));
+
+    // Filter out service types that are no longer valid for the selected categories
+    const validTypes = serviceTypes
+      .filter(t => updated.includes(String(t.category)))
+      .map(t => String(t.id));
+
+    const updatedTypes = selectedTypes.filter(id => validTypes.includes(id));
+    onChange("experience", updatedTypes.join(","));
+  };
+
+  const handleTypeToggle = (typeId: string, checked: boolean) => {
+    const idStr = String(typeId);
+    const updated = checked
+      ? [...selectedTypes, idStr]
+      : selectedTypes.filter((id) => id !== idStr);
+
+    onChange("experience", updated.join(","));
+  };
 
   const handleAreaChange = (areaId: string, checked: boolean) => {
+    const idStr = String(areaId);
     const updated = checked
-      ? [...selectedAreas, areaId]
-      : selectedAreas.filter((a) => a !== areaId);
+      ? [...selectedAreas, idStr]
+      : selectedAreas.filter((id) => id !== idStr);
 
     onChange("serviceAreas", updated.join(","));
   };
@@ -129,51 +159,43 @@ const ServiceDetailsStep = ({
         <div className="flex items-center gap-2">
           <FolderOpen className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold text-foreground">
-            Service Category
+            Service Categories <span className="text-destructive">*</span>
           </h3>
         </div>
 
         <p className="text-sm text-muted-foreground">
-          Select the primary category for your services
+          Select categories you specialize in (multi-select enabled, at least one required)
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {categories.map((category) => {
             const Icon = iconMap[category.name] || FolderOpen;
-            const isSelected =
-              String(data.serviceCategory) === String(category.id);
+            const isSelected = selectedCategories.includes(String(category.id));
 
             return (
               <button
                 key={category.id}
                 type="button"
-                onClick={() => {
-                  onChange("serviceCategory", String(category.id));
-                  onChange("experience", "");
-                }}
-                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-all hover:border-primary hover:shadow-md ${
-                  isSelected
-                    ? "border-primary bg-primary/5 shadow-md"
-                    : "border-border bg-card"
-                }`}
+                onClick={() => handleCategoryToggle(category.id)}
+                className={`flex flex-col items-center justify-center p-4 rounded-lg border transition-all hover:border-primary hover:shadow-md ${isSelected
+                  ? "border-primary bg-primary/5 shadow-md"
+                  : "border-border bg-card"
+                  }`}
               >
                 <div
-                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-2 ${
-                    isSelected ? "bg-primary" : "bg-primary/10"
-                  }`}
+                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-2 ${isSelected ? "bg-primary" : "bg-primary/10"
+                    }`}
                 >
                   <Icon
-                    className={`h-6 w-6 ${
-                      isSelected
-                        ? "text-primary-foreground"
-                        : "text-primary"
-                    }`}
+                    className={`h-6 w-6 ${isSelected
+                      ? "text-primary-foreground"
+                      : "text-primary"
+                      }`}
                   />
                 </div>
                 <span
-                  className={`text-sm font-medium text-center ${
-                    isSelected ? "text-primary" : "text-foreground"
-                  }`}
+                  className={`text-sm font-medium text-center ${isSelected ? "text-primary" : "text-foreground"
+                    }`}
                 >
                   {category.name}
                 </span>
@@ -188,36 +210,42 @@ const ServiceDetailsStep = ({
         <div className="flex items-center gap-2">
           <Settings className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold text-foreground">
-            Service Type
+            Service Types <span className="text-destructive">*</span>
           </h3>
         </div>
 
-        <div className="space-y-2">
-          <Label>
-            Select Service Type <span className="text-destructive">*</span>
-          </Label>
-          <Select
-            value={data.experience}
-            onValueChange={(value) => onChange("experience", value)}
-            disabled={!data.serviceCategory}
-          >
-            <SelectTrigger>
-              <SelectValue
-                placeholder={
-                  data.serviceCategory
-                    ? "Select service type"
-                    : "Please select a category first"
-                }
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredServiceTypes.map((type) => (
-                <SelectItem key={type.id} value={String(type.id)}>
+        <p className="text-sm text-muted-foreground">
+          Select all services you provide (at least one required)
+        </p>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-3">
+          {selectedCategories.length === 0 ? (
+            <div className="col-span-full py-4 text-sm text-muted-foreground italic">
+              Please select at least one category above to see service types
+            </div>
+          ) : filteredServiceTypes.length === 0 ? (
+            <div className="col-span-full py-4 text-sm text-muted-foreground italic">
+              No service types found for the selected categories
+            </div>
+          ) : (
+            filteredServiceTypes.map((type) => (
+              <div key={type.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`type-${type.id}`}
+                  checked={selectedTypes.includes(String(type.id))}
+                  onCheckedChange={(checked) =>
+                    handleTypeToggle(String(type.id), checked as boolean)
+                  }
+                />
+                <Label
+                  htmlFor={`type-${type.id}`}
+                  className="text-sm font-normal cursor-pointer"
+                >
                   {type.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                </Label>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -226,7 +254,7 @@ const ServiceDetailsStep = ({
         <div className="flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-semibold text-foreground">
-            Service Area
+            Service Areas
           </h3>
         </div>
 
@@ -234,12 +262,16 @@ const ServiceDetailsStep = ({
           {serviceAreas.map((area) => (
             <div key={area.id} className="flex items-center space-x-2">
               <Checkbox
+                id={`area-${area.id}`}
                 checked={selectedAreas.includes(String(area.id))}
                 onCheckedChange={(checked) =>
                   handleAreaChange(String(area.id), checked as boolean)
                 }
               />
-              <Label className="text-sm font-normal cursor-pointer">
+              <Label
+                htmlFor={`area-${area.id}`}
+                className="text-sm font-normal cursor-pointer"
+              >
                 {area.name}
               </Label>
             </div>
@@ -261,6 +293,7 @@ const ServiceDetailsStep = ({
           onChange={(e) =>
             onChange("serviceDescription", e.target.value)
           }
+          placeholder="Describe your expertise and what makes your service stand out..."
           rows={5}
           className="resize-none"
         />

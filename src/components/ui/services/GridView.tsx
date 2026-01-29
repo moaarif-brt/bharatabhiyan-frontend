@@ -8,20 +8,10 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
+import { resolveMediaUrl } from "@/utils/mediaUrl";
 
 const GridView = ({ providers = [], serviceType }: any) => {
-  const { user } = useAuth();
   const navigate = useNavigate();
-
-  // 🔐 SINGLE SOURCE OF TRUTH
-  const requireLogin = (cb?: () => void) => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    cb && cb();
-  };
 
   const mapProvider = (p: any) => ({
     id: p.id,
@@ -29,14 +19,11 @@ const GridView = ({ providers = [], serviceType }: any) => {
     company: p.business_name,
     phone: p.user_phone,
     whatsapp: p.whatsapp,
-    services: [p.service_type_name],
-    location:
-      p.service_areas_list?.length > 0
-        ? p.service_areas_list.map((a: any) => a.name).join(", ")
-        : `${p.city_name}, ${p.state_name}`,
+    services: [p.service_type_name || p.category_name],
+    location: `${p.business_address}, ${p.city_name}, ${p.state_name} - ${p.pincode}`,
     experience: p.experience?.replaceAll("_", " ") || "N/A",
     isVerified: p.verification_status === "VERIFIED",
-    avatar: p.profile_photo_url,
+    avatar: resolveMediaUrl(p.profile_photo_url),
     initials: p.business_name?.[0]?.toUpperCase() || "P",
   });
 
@@ -54,10 +41,8 @@ const GridView = ({ providers = [], serviceType }: any) => {
             <div
               className="p-4 text-center cursor-pointer"
               onClick={() =>
-                requireLogin(() =>
-                  navigate(
-                    `/services/home/${serviceType}/provider/${provider.id}`
-                  )
+                navigate(
+                  `/services/home/${serviceType}/provider/${provider.id}`
                 )
               }
             >
@@ -112,9 +97,7 @@ const GridView = ({ providers = [], serviceType }: any) => {
                   variant="outline"
                   className="text-orange-500 border-orange-500 hover:bg-orange-50"
                   onClick={() =>
-                    requireLogin(() =>
-                      window.open(`tel:${provider.phone}`)
-                    )
+                    window.open(`tel:${provider.phone}`)
                   }
                 >
                   <Phone className="w-4 h-4 mr-1" /> Call
@@ -126,11 +109,9 @@ const GridView = ({ providers = [], serviceType }: any) => {
                   size="sm"
                   className="bg-green-500 hover:bg-green-600 text-white"
                   onClick={() =>
-                    requireLogin(() =>
-                      window.open(
-                        `https://wa.me/${provider.whatsapp.replace("+", "")}`,
-                        "_blank"
-                      )
+                    window.open(
+                      `https://wa.me/${provider.whatsapp.replace("+", "")}`,
+                      "_blank"
                     )
                   }
                 >
@@ -142,10 +123,8 @@ const GridView = ({ providers = [], serviceType }: any) => {
                 size="sm"
                 variant="outline"
                 onClick={() =>
-                  requireLogin(() =>
-                    navigate(
-                      `/services/home/${serviceType}/provider/${provider.id}`
-                    )
+                  navigate(
+                    `/services/home/${serviceType}/provider/${provider.id}`
                   )
                 }
               >

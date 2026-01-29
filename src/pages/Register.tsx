@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Loader2, ArrowRight, Check } from "lucide-react";
 import PageLayout from "@/components/layout/PageLayout";
 import AuthTabs from "@/components/auth/AuthTabs";
@@ -11,6 +11,9 @@ import { useRegister } from "@/hooks/useRegister";
 
 const Register = () => {
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
+
   const { registerByEmail, registerByPhone, loading } = useRegister(); // ✅ hook
   const [activeTab, setActiveTab] = useState<"phone" | "email">("phone");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -98,6 +101,7 @@ const Register = () => {
       name: formData.fullName,
       email: formData.email,
       password: formData.password,
+      redirectTo
     });
   };
 
@@ -122,11 +126,10 @@ const Register = () => {
             <div>
               <input
                 type="text"
-                className={`input-field border-2 transition-all ${
-                  fieldErrors.fullName
+                className={`input-field border-2 transition-all ${fieldErrors.fullName
                     ? "border-red-500 bg-red-50 dark:bg-red-950/20 focus:border-red-500"
                     : "border-border"
-                }`}
+                  }`}
                 placeholder="Enter your full name"
                 value={formData.fullName}
                 onChange={(e) => {
@@ -191,21 +194,19 @@ const Register = () => {
 
             <div className="space-y-4">
               <div
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  showValidationErrors && !agreedToTerms
+                className={`p-4 rounded-lg border-2 transition-all ${showValidationErrors && !agreedToTerms
                     ? "border-red-500 bg-red-50 dark:bg-red-950/20"
                     : "border-border bg-background"
-                }`}
+                  }`}
               >
                 <label className="flex items-start gap-3 cursor-pointer">
                   <div
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
-                      agreedToTerms
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${agreedToTerms
                         ? "bg-primary border-primary"
                         : showValidationErrors && !agreedToTerms
                           ? "border-red-500 bg-background"
                           : "border-input bg-background"
-                    }`}
+                      }`}
                     onClick={() => {
                       setAgreedToTerms(!agreedToTerms);
                       if (showValidationErrors) setShowValidationErrors(false);
@@ -239,21 +240,19 @@ const Register = () => {
               </div>
 
               <div
-                className={`p-4 rounded-lg border-2 transition-all ${
-                  showValidationErrors && !certifyInfo
+                className={`p-4 rounded-lg border-2 transition-all ${showValidationErrors && !certifyInfo
                     ? "border-red-500 bg-red-50 dark:bg-red-950/20"
                     : "border-border bg-background"
-                }`}
+                  }`}
               >
                 <label className="flex items-start gap-3 cursor-pointer">
                   <div
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
-                      certifyInfo
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${certifyInfo
                         ? "bg-primary border-primary"
                         : showValidationErrors && !certifyInfo
                           ? "border-red-500 bg-background"
                           : "border-input bg-background"
-                    }`}
+                      }`}
                     onClick={() => {
                       setCertifyInfo(!certifyInfo);
                       if (showValidationErrors) setShowValidationErrors(false);

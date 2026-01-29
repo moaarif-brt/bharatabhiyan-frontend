@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://bharatabhiyan.onrender.com/api";
+const BACKEND_ORIGIN = import.meta.env.VITE_BACKEND_ORIGIN || "https://bharatabhiyan.onrender.com";
+const API_BASE_URL = `${BACKEND_ORIGIN}/api`;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

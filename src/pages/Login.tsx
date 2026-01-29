@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2, ArrowRight, Info } from "lucide-react";
 import PageLayout from "@/components/layout/PageLayout";
 import AuthTabs from "@/components/auth/AuthTabs";
@@ -12,6 +12,9 @@ import { useLogin } from "@/hooks/useLogin";
 
 const Login = () => {
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
+
   const { loginByEmail, loginByPhone, loading } = useLogin();
   const [activeTab, setActiveTab] = useState<"phone" | "email">("phone");
   const [formData, setFormData] = useState({
@@ -33,6 +36,7 @@ const Login = () => {
     loginByEmail({
       email: formData.email,
       password: formData.password,
+      redirectTo
     });
   };
 

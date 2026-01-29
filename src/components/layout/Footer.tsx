@@ -1,47 +1,90 @@
+import { Link } from "react-router-dom";
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Youtube,
+} from "lucide-react";
+import logoImage from "@/assets/logo.jpeg";
+import { useAuth } from "@/context/AuthContext";
+
 const Footer = () => {
+  const { user } = useAuth();
+
   return (
-    <footer className="bg-secondary text-secondary-foreground mt-auto">
-      <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {/* About Section */}
+    <footer className="bg-secondary text-secondary-foreground py-12 px-4 mt-auto">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h4 className="font-semibold mb-3 text-sm sm:text-base">About</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-secondary-foreground/80">
-              <li><a href="/about" className="hover:text-secondary-foreground">About BharatAbhiyan</a></li>
-              <li><a href="/about" className="hover:text-secondary-foreground">Our Mission</a></li>
+            <div className="mb-4">
+              <img
+                src={logoImage}
+                alt="BharatAbhiyan Logo"
+                className="h-16 w-auto object-contain"
+              />
+            </div>
+            <p className="text-secondary-foreground/70 text-sm mb-4 leading-relaxed">
+              Empowering local services across India. Connecting verified service providers with customers through our trusted Captain KYC verification system.
+            </p>
+            <div className="flex gap-3">
+              <div className="w-10 h-10 rounded-full bg-secondary-foreground/10 flex items-center justify-center cursor-pointer hover:bg-secondary-foreground/20 transition-colors">
+                <Facebook className="w-5 h-5" />
+              </div>
+              <div className="w-10 h-10 rounded-full bg-secondary-foreground/10 flex items-center justify-center cursor-pointer hover:bg-secondary-foreground/20 transition-colors">
+                <Twitter className="w-5 h-5" />
+              </div>
+              <div className="w-10 h-10 rounded-full bg-secondary-foreground/10 flex items-center justify-center cursor-pointer hover:bg-secondary-foreground/20 transition-colors">
+                <Instagram className="w-5 h-5" />
+              </div>
+              <div className="w-10 h-10 rounded-full bg-secondary-foreground/10 flex items-center justify-center cursor-pointer hover:bg-secondary-foreground/20 transition-colors">
+                <Youtube className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4 text-sm tracking-wider">SERVICES</h4>
+            <ul className="space-y-3 text-secondary-foreground/70 text-sm">
+              <li><Link to="/services/home" className="hover:text-primary transition-colors">Find Providers</Link></li>
+              <li><Link to="/services/government" className="hover:text-primary transition-colors">Government Schemes</Link></li>
+              <li><Link to="/service-provider-registration" className="hover:text-primary transition-colors">Become a Provider</Link></li>
+              <li><Link to="/about" className="hover:text-primary transition-colors">Captain Program</Link></li>
             </ul>
           </div>
 
-          {/* Services */}
           <div>
-            <h4 className="font-semibold mb-3 text-sm sm:text-base">Services</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-secondary-foreground/80">
-              <li><a href="#" className="hover:text-secondary-foreground">Local Services</a></li>
-              <li><a href="#" className="hover:text-secondary-foreground">Government Schemes</a></li>
+            <h4 className="font-semibold mb-4 text-sm tracking-wider">COMPANY</h4>
+            <ul className="space-y-3 text-secondary-foreground/70 text-sm">
+              <li><Link to="/about" className="hover:text-primary transition-colors">About Us</Link></li>
+              <li><Link to="/about" className="hover:text-primary transition-colors">Our Mission</Link></li>
+              <li><Link to="/about" className="hover:text-primary transition-colors">Careers</Link></li>
+              <li><Link to="/contact" className="hover:text-primary transition-colors">Press & Media</Link></li>
+              <li><Link to="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
-          {/* Support */}
           <div>
-            <h4 className="font-semibold mb-3 text-sm sm:text-base">Help & Support</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-secondary-foreground/80">
-              <li><a href="/help/faqs" className="hover:text-secondary-foreground">FAQs</a></li>
-              <li><a href="/contact" className="hover:text-secondary-foreground">Contact Us</a></li>
-            </ul>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <h4 className="font-semibold mb-3 text-sm sm:text-base">Legal</h4>
-            <ul className="space-y-2 text-xs sm:text-sm text-secondary-foreground/80">
-              <li><a href="#" className="hover:text-secondary-foreground">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-secondary-foreground">Privacy Policy</a></li>
+            <h4 className="font-semibold mb-4 text-sm tracking-wider">SUPPORT</h4>
+            <ul className="space-y-3 text-secondary-foreground/70 text-sm">
+              <li><Link to="/help" className="hover:text-primary transition-colors">Help Center</Link></li>
+              <li><Link to="/help/faqs" className="hover:text-primary transition-colors">FAQs</Link></li>
+              <li><Link to="/contact" className="hover:text-primary transition-colors">Report an Issue</Link></li>
+              <li><Link to="/terms" className="hover:text-primary transition-colors">Safety Guidelines</Link></li>
+              <li><Link to="/contact" className="hover:text-primary transition-colors">Feedback</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-secondary-foreground/20 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-xs sm:text-sm text-secondary-foreground/60">
-          <p>© 2024 BharatAbhiyan. All rights reserved.</p>
+        <div className="border-t border-secondary-foreground/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-secondary-foreground/70 text-sm">
+            © 2024 BharatAbhiyan. All rights reserved. An initiative under Digital India.
+          </p>
+          <div className="flex flex-wrap gap-6 text-secondary-foreground/70 text-sm">
+            <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+            <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+            <Link to="/about" className="hover:text-primary transition-colors">Accessibility</Link>
+            <Link to="/" className="hover:text-primary transition-colors">Sitemap</Link>
+          </div>
         </div>
       </div>
     </footer>

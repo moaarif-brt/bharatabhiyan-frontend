@@ -18,8 +18,10 @@ import {
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { useAuth } from "@/context/AuthContext";
 
 const AboutUs = () => {
+  const { user } = useAuth();
   const breadcrumbs = [
     { label: "Home", href: "/" },
     { label: "About Us" },
@@ -351,7 +353,7 @@ const AboutUs = () => {
               </Link>
               <Link to="/service-provider-registration">
                 <Button variant="outline" className="border-secondary text-secondary hover:bg-secondary/10 px-8 py-6 text-base">
-                  Become a Provider <ArrowRight className="ml-2 w-5 h-5" />
+                  {user?.is_provider ? "Profile" : "Become a Provider"} <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </div>

@@ -37,7 +37,10 @@ const Header = () => {
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Services", href: "/services", hasDropdown: true },
-    ...(user ? [{ label: "Become a Provider", href: "/service-provider-registration" }] : []),
+    {
+      label: user?.is_provider ? "Profile" : "Become a Provider",
+      href: "/service-provider-registration"
+    },
     { label: "About Us", href: "/about" },
     { label: "Contact", href: "/contact" },
   ];
@@ -82,11 +85,10 @@ const Header = () => {
               item.hasDropdown ? (
                 <DropdownMenu key={item.label}>
                   <DropdownMenuTrigger
-                    className={`flex items-center gap-1 font-medium transition-colors ${
-                      location.pathname.startsWith("/services")
+                    className={`flex items-center gap-1 font-medium transition-colors ${location.pathname.startsWith("/services")
                         ? "text-secondary border-b-2 border-primary pb-1"
                         : "text-muted-foreground hover:text-secondary"
-                    }`}
+                      }`}
                   >
                     Services
                     <ChevronDown className="w-4 h-4" />
@@ -106,11 +108,10 @@ const Header = () => {
                 <Link
                   key={item.label}
                   to={item.href}
-                  className={`font-medium transition-colors ${
-                    isActive(item.href)
+                  className={`font-medium transition-colors ${isActive(item.href)
                       ? "text-secondary border-b-2 border-primary pb-1"
                       : "text-muted-foreground hover:text-secondary"
-                  }`}
+                    }`}
                 >
                   {item.label}
                 </Link>
@@ -130,7 +131,7 @@ const Header = () => {
               </SelectContent>
             </Select>
 
-            {user ? (
+            {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger>
                   <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold text-sm">
@@ -145,16 +146,8 @@ const Header = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <>
-                <Link to="/login" className="hidden sm:block">
-                  <Button variant="outline">Login</Button>
-                </Link>
-                <Link to="/register" className="hidden sm:block">
-                  <Button>Register</Button>
-                </Link>
-              </>
             )}
+
 
             {/* MOBILE TOGGLE */}
             <button
@@ -182,9 +175,8 @@ const Header = () => {
                     >
                       Services
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform ${
-                          mobileServicesOpen ? "rotate-180" : ""
-                        }`}
+                        className={`w-4 h-4 transition-transform ${mobileServicesOpen ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
 
@@ -211,11 +203,10 @@ const Header = () => {
                   <li key={item.label}>
                     <Link
                       to={item.href}
-                      className={`block px-4 py-3 rounded-lg text-sm font-medium ${
-                        isActive(item.href)
+                      className={`block px-4 py-3 rounded-lg text-sm font-medium ${isActive(item.href)
                           ? "bg-primary text-primary-foreground"
                           : "text-muted-foreground hover:bg-muted"
-                      }`}
+                        }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.label}

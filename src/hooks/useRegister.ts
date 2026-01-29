@@ -15,10 +15,12 @@ export const useRegister = () => {
     name,
     email,
     password,
+    redirectTo = "/dashboard",
   }: {
     name: string;
     email: string;
     password: string;
+    redirectTo?: string;
   }) => {
     try {
       setLoading(true);
@@ -44,15 +46,15 @@ export const useRegister = () => {
         variant: "default",
       });
 
-      // Navigate to choice page
-      navigate("/dashboard");
+      setLoading(false);
+      navigate(redirectTo);
 
     } catch (error: any) {
       setLoading(false);
-      
+
       // Handle field-specific errors
       const errorData = error?.response?.data;
-      
+
       if (errorData?.errors) {
         // Extract error messages from the errors object
         const errorMessages = Object.entries(errorData.errors)

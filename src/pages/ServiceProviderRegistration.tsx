@@ -9,8 +9,10 @@ import DocumentsStep from "@/components/registration/DocumentsStep";
 import ReviewStep from "@/components/registration/ReviewStep";
 import CaptainVerificationStep from "@/components/registration/CaptainVerificationStep";
 import SuccessStep from "@/components/registration/SuccessStep";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 import {
   saveProviderDraft,
@@ -23,7 +25,9 @@ import {
 import { buildDraftPayload } from "@/utils/buildDraftPayload";
 
 const ServiceProviderRegistration = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -51,6 +55,8 @@ const ServiceProviderRegistration = () => {
     experience: "",             // service_type_id
     serviceAreas: "",           // comma separated ids
     serviceDescription: "",
+    availability: [] as string[],
+    workingHours: "",
   });
 
 
@@ -106,7 +112,7 @@ const ServiceProviderRegistration = () => {
         return 5;
 
       case "VERIFIED":
-        return data.is_paid ? 7 : 5;
+        return 7; // Go to Success if verified
 
       case "ACTIVE":
         return 7;
@@ -155,6 +161,8 @@ const ServiceProviderRegistration = () => {
         ? data.service_areas_list.map((a: any) => a.id).join(",")
         : "",
       serviceDescription: data.service_description || "",
+      availability: data.availability || [],
+      workingHours: data.working_hours || "",
     });
 
     // STEP 3 (FILES — only metadata, NOT File objects)
@@ -195,19 +203,23 @@ const ServiceProviderRegistration = () => {
     }
   };
   const isDraft = profile?.verification_status === "DRAFT" ||
-    profile?.verification_status === "PENDING_VERIFICATION" ;
+    profile?.verification_status === "PENDING_VERIFICATION";
 
-  const isLocked =
-  profile &&
-  ["DRAFT", "PENDING_VERIFICATION", "VERIFIED", "ACTIVE"].includes(
-    profile.verification_status
-  );
+  const isLocked = false; // Always editable as requested
 
 
 
   useEffect(() => {
-    hydrateProfile();
-  }, []);
+    if (!authLoading && !user) {
+      navigate("/login?redirect=/service-provider-registration");
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      hydrateProfile();
+    }
+  }, [user]);
 
   /* ---------------- FORM HANDLERS ---------------- */
 
@@ -232,19 +244,42 @@ const ServiceProviderRegistration = () => {
   /* ---------------- DRAFT SAVE ---------------- */
 
   const handleNext = async () => {
+    // 🔍 STEP VALIDATION
+    if (currentStep === 1) {
+      if (!basicInfo.whatsapp_number || !basicInfo.business_name || !basicInfo.experience || !basicInfo.city_id || !basicInfo.pincode) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all mandatory fields in Basic Information.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (currentStep === 2) {
+      const hasCategories = serviceDetails.serviceCategory.split(",").filter(Boolean).length > 0;
+      const hasSubCategories = serviceDetails.experience.split(",").filter(Boolean).length > 0;
+
+      if (!hasCategories || !hasSubCategories) {
+        toast({
+          title: "Selection Required",
+          description: "Please select at least one Category and at least one Service Type to continue.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     try {
       const payload = buildDraftPayload({
-
         service_category: serviceDetails.serviceCategory,
         service_description: serviceDetails.serviceDescription,
         experience: serviceDetails.experience,
         service_areas: serviceDetails.serviceAreas,
-
         ...documents,
-      }); 
+      });
 
       setCurrentStep((s) => s + 1);
-
     } catch (err: any) {
       toast({
         title: "Save failed",
@@ -283,8 +318,12 @@ const ServiceProviderRegistration = () => {
       fd.append("pincode", basicInfo.pincode);
 
       // SERVICE
-      fd.append("service_category", serviceDetails.serviceCategory);
-      fd.append("service_type", serviceDetails.experience);
+      serviceDetails.serviceCategory.split(",").filter(Boolean).forEach((catId) => {
+        fd.append("service_category", catId);
+      });
+      serviceDetails.experience.split(",").filter(Boolean).forEach((typeId) => {
+        fd.append("service_type", typeId);
+      });
       fd.append("service_description", serviceDetails.serviceDescription);
       serviceDetails.serviceAreas.split(",").filter(Boolean).forEach((areaId) => {
         fd.append("service_areas", areaId);
@@ -364,18 +403,17 @@ const ServiceProviderRegistration = () => {
     {
       number: 5,
       title: "Captain Verification",
-      subtitle: "In-person KYC",
-      completed: profile?.verification_status === "VERIFIED",
+      subtitle: "In-person KYC & Payment",
+      completed: profile?.verification_status === "VERIFIED" || profile?.verification_status === "ACTIVE",
       current: currentStep === 5,
     },
-    {
-      number: 6,
-      title: "Payment",
-      subtitle: "Activate listing",
-      completed: profile?.is_paid,
-      current: currentStep === 6,
-    },
-  ];
+  ].filter(step => {
+    // Hide Captain Verification (Step 5) if already verified or active
+    if (step.number === 5 && (profile?.verification_status === "VERIFIED" || profile?.verification_status === "ACTIVE")) {
+      return false;
+    }
+    return true;
+  });
 
   /* ---------------- RENDER ---------------- */
 
@@ -384,103 +422,111 @@ const ServiceProviderRegistration = () => {
       <Header />
 
       <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1">
-            <RegistrationStepsSidebar steps={steps} />
-          </div>
-
-          <div className="lg:col-span-2">
-            <div className="bg-card border rounded-lg p-6">
-              {currentStep === 1 && !isLocked &&(
-                <BasicInfoStep
-                  data={basicInfo}
-                  onChange={handleBasicInfoChange}
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {user && (
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+              <div className="lg:col-span-1">
+                <RegistrationStepsSidebar
+                  steps={steps}
+                  onStepClick={(step) => {
+                    if (step < currentStep || (profile && step <= resolveStepFromProfile(profile))) {
+                      setCurrentStep(step);
+                    }
+                  }}
                 />
-              )}
+              </div>
 
-              {currentStep === 2 && !isLocked &&(
-                <ServiceDetailsStep
-                  data={serviceDetails}
-                  onChange={handleServiceDetailsChange}
-                  cityId={basicInfo.city_id}
-                  onLookupsReady={(l) =>
-                    setLookups((p) => ({ ...p, ...l }))
-                  }
-                />
-              )}
+              <div className="lg:col-span-2">
+                <div className="bg-card border rounded-lg p-6">
+                  {currentStep === 1 && !isLocked && (
+                    <BasicInfoStep
+                      data={basicInfo}
+                      onChange={handleBasicInfoChange}
+                    />
+                  )}
 
-              {currentStep === 3 && !isLocked &&(
-                <DocumentsStep
-                  data={documents}
-                  documentMeta={documentMeta}
-                  onChange={handleDocumentsChange}
-                  onClearMeta={handleClearDocumentMeta}
-                />
-              )}
+                  {currentStep === 2 && !isLocked && (
+                    <ServiceDetailsStep
+                      data={serviceDetails}
+                      onChange={handleServiceDetailsChange}
+                      cityId={basicInfo.city_id}
+                      onLookupsReady={(l) =>
+                        setLookups((p) => ({ ...p, ...l }))
+                      }
+                    />
+                  )}
 
-              {currentStep === 4 && (
-                <ReviewStep
-                  basicInfo={basicInfo}
-                  serviceDetails={serviceDetails}
-                  documents={documents}
-                  documentMeta={documentMeta}
-                  lookups={lookups}
-                  readOnly={isDraft}
-                  termsAccepted={termsAccepted}
-                  onTermsChange={setTermsAccepted}
-                />
-              )}
+                  {currentStep === 3 && !isLocked && (
+                    <DocumentsStep
+                      data={documents}
+                      documentMeta={documentMeta}
+                      onChange={handleDocumentsChange}
+                      onClearMeta={handleClearDocumentMeta}
+                    />
+                  )}
 
+                  {currentStep === 4 && (
+                    <ReviewStep
+                      basicInfo={basicInfo}
+                      serviceDetails={serviceDetails}
+                      documents={documents}
+                      documentMeta={documentMeta}
+                      lookups={lookups}
+                      readOnly={isDraft}
+                      termsAccepted={termsAccepted}
+                      onTermsChange={setTermsAccepted}
+                    />
+                  )}
 
-              {currentStep === 5 && profile && (
-                <CaptainVerificationStep
-                  profile={profile}
-                  onViewApplication={() => setCurrentStep(4)} // ✅ ADD
-                  onResubmit={() => setCurrentStep(1)}
-                />
-              )}
-            
+                  {currentStep === 5 && profile && (
+                    <CaptainVerificationStep
+                      profile={profile}
+                      onViewApplication={() => setCurrentStep(4)}
+                      onResubmit={() => setCurrentStep(1)}
+                    />
+                  )}
 
-              {currentStep === 7 && <SuccessStep selectedPlan={selectedPlan} />}
+                  {currentStep === 7 && <SuccessStep selectedPlan={selectedPlan} />}
 
-              {/* NORMAL FLOW (NOT DRAFT) */}
-              {currentStep <= 4 && !isDraft && (
-                <div className="flex justify-between mt-8 pt-6 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={handlePrevious}
-                    disabled={currentStep === 1}
-                  >
-                    Previous
-                  </Button>
+                  {currentStep <= 4 && !isDraft && (
+                    <div className="flex justify-between mt-8 pt-6 border-t">
+                      <Button
+                        variant="outline"
+                        onClick={handlePrevious}
+                        disabled={currentStep === 1}
+                      >
+                        Previous
+                      </Button>
 
-                  {currentStep < 4 ? (
-                    <Button onClick={handleNext}>Next</Button>
-                  ) : (
-                    <Button onClick={handleSubmit}>
-                      Submit Registration
-                    </Button>
+                      {currentStep < 4 ? (
+                        <Button onClick={handleNext}>Next</Button>
+                      ) : (
+                        <Button onClick={handleSubmit}>
+                          Submit Registration
+                        </Button>
+                      )}
+                    </div>
+                  )}
+
+                  {currentStep === 4 && isDraft && (
+                    <div className="flex justify-end mt-8 pt-6 border-t">
+                      <Button onClick={() => setCurrentStep(5)}>
+                        Check Application Status
+                      </Button>
+                    </div>
                   )}
                 </div>
-              )}
+              </div>
 
-              {/* DRAFT FLOW (ONLY CHECK STATUS) */}
-              {currentStep === 4 && isDraft && (
-                <div className="flex justify-end mt-8 pt-6 border-t">
-                  <Button onClick={() => setCurrentStep(5)}>
-                    Check Application Status
-                  </Button>
-                </div>
-              )}
-
+              <div className="lg:col-span-1">
+                <Sidebar />
+              </div>
             </div>
-          </div>
-
-          <div className="lg:col-span-1">
-            <Sidebar />
-          </div>
+          )}
         </div>
       </main>
+
+
 
       <Footer />
     </div>

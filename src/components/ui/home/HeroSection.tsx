@@ -3,25 +3,19 @@ import { useNavigate, Link } from "react-router-dom";
 import { Search, ArrowRight, Sparkles } from "lucide-react";
 import heroBg from "@/assets/hero-bg.png";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import {
   fetchServiceTypes,
   fetchServiceAreas,
 } from "@/api/provider";
+import { MultiSelect } from "@/components/ui/MultiSelect";
+import { Button } from "@/components/ui/button";
 
 const HeroSection = ({ user }: { user: any }) => {
   const [serviceTypes, setServiceTypes] = useState<any[]>([]);
   const [locations, setLocations] = useState<any[]>([]);
 
-  // ✅ CONTROLLED STATES
-  const [selectedServiceType, setSelectedServiceType] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
+  // ✅ CONTROLLED STATES (MULTI-SELECT)
+  const [selectedServiceTypes, setSelectedServiceTypes] = useState<string[]>([]);
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
 
   const navigate = useNavigate();
 
@@ -46,11 +40,14 @@ const HeroSection = ({ user }: { user: any }) => {
 
   /* ---------- SEARCH (SINGLE API FLOW) ---------- */
   const handleSearch = () => {
-    if (!selectedServiceType || !selectedLocation) return;
+    let query = "";
+    if (selectedServiceTypes.length > 0) query += `service_types=${selectedServiceTypes.join(",")}`;
+    if (selectedAreas.length > 0) {
+      if (query) query += "&";
+      query += `service_areas=${selectedAreas.join(",")}`;
+    }
 
-    navigate(
-      `/services/home/${selectedServiceType}?area=${selectedLocation}`
-    );
+    navigate(`/services/home/search?${query}${query ? "&" : ""}page=1`);
   };
 
   return (
@@ -92,7 +89,7 @@ const HeroSection = ({ user }: { user: any }) => {
                     variant="outline"
                     className="border-secondary-foreground/30 bg-transparent text-secondary-foreground hover:bg-secondary-foreground/10 px-8 py-6 text-lg rounded-lg"
                   >
-                    Become a Provider
+                    {user?.is_provider ? "Profile" : "Become a Provider"}
                   </Button>
                 </Link>
               )}
@@ -100,71 +97,61 @@ const HeroSection = ({ user }: { user: any }) => {
           </div>
 
           {/* Right Search Card */}
-          <div className="bg-card rounded-xl p-6 shadow-xl border border-border">
-            <div className="flex items-center gap-2 mb-6">
-              <Search className="w-5 h-5 text-muted-foreground" />
-              <h3 className="text-lg font-semibold text-card-foreground">
-                What service do you need?
-              </h3>
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 shadow-2xl relative">
+            <div className="absolute -top-4 -right-4 w-12 h-12 bg-accent rounded-full flex items-center justify-center animate-bounce shadow-lg">
+              <Sparkles className="w-6 h-6 text-accent-foreground" />
             </div>
 
-            <div className="space-y-4">
-              {/* Service Type */}
+            <div className="flex items-center gap-2 mb-8">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Search className="w-5 h-5 text-primary" />
+              </div>
               <div>
-                <label className="text-sm text-muted-foreground mb-2 block">
-                  Service Type
+                <h3 className="text-xl font-bold text-white">Find Professionals</h3>
+                <p className="text-sm text-white/60">Select services and your area</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {/* Service Types (Multi) */}
+              <div>
+                <label className="text-sm font-medium text-white/80 mb-2 block">
+                  What service do you need?
                 </label>
-                <Select
-                  value={selectedServiceType}
-                  onValueChange={(val) => {
-                    setSelectedServiceType(val);
-                    setSelectedLocation("");
-                  }}
-                >
-                  <SelectTrigger className="w-full h-12 rounded-lg text-foreground [&_[data-placeholder]]:text-muted-foreground">
-                    <SelectValue placeholder="Select a service type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {serviceTypes.map((st) => (
-                      <SelectItem key={st.id} value={String(st.id)}>
-                        {st.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <MultiSelect
+                  options={serviceTypes.map((s) => ({ label: s.name, value: String(s.id) }))}
+                  selected={selectedServiceTypes}
+                  onChange={setSelectedServiceTypes}
+                  placeholder="e.g. Plumber, Electrician..."
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                />
               </div>
 
-              {/* Location */}
+              {/* Locations (Multi) */}
               <div>
-                <label className="text-sm text-muted-foreground mb-2 block">
-                  Your Location
+                <label className="text-sm font-medium text-white/80 mb-2 block">
+                  Your Area
                 </label>
-                <Select
-                  value={selectedLocation}
-                  onValueChange={setSelectedLocation}
-                  disabled={!selectedServiceType}
-                >
-                  <SelectTrigger className="w-full h-12 rounded-lg text-foreground [&_[data-placeholder]]:text-muted-foreground">
-                    <SelectValue placeholder="Select your area" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locations.map((loc) => (
-                      <SelectItem key={loc.id} value={String(loc.id)}>
-                        {loc.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <MultiSelect
+                  options={locations.map((l) => ({ label: l.name, value: String(l.id) }))}
+                  selected={selectedAreas}
+                  onChange={setSelectedAreas}
+                  placeholder="Which areas should we search?"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                />
               </div>
 
               <Button
-                className="w-full bg-primary hover:bg-primary-dark text-primary-foreground py-6 text-base font-semibold rounded-lg"
-                disabled={!selectedServiceType || !selectedLocation}
+                className="w-full bg-primary hover:bg-primary-dark text-primary-foreground py-7 text-lg font-bold rounded-xl shadow-[0_0_20px_rgba(var(--primary),0.3)] transition-all transform hover:scale-[1.02]"
                 onClick={handleSearch}
               >
                 <Search className="w-5 h-5 mr-2" />
-                Search Providers
+                Search Now
               </Button>
+
+              <p className="text-center text-xs text-white/40 mt-4">
+                Trust BharatAbhiyan for verified & reliable services
+              </p>
             </div>
           </div>
         </div>

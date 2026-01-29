@@ -1,4 +1,11 @@
 import { Check, FileText, Image as ImageIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
@@ -33,10 +40,11 @@ const resolveName = (list: any[], id?: string) =>
 const resolveMultiple = (list: any[], ids?: string) =>
   ids
     ? ids
-        .split(",")
-        .map((id) => resolveName(list, id))
-        .join(", ")
+      .split(",")
+      .map((id) => resolveName(list, id))
+      .join(", ")
     : "—";
+
 
 const FileRow = ({
   label,
@@ -55,15 +63,25 @@ const FileRow = ({
       </span>
 
       {url && (
-        <a
-          href={resolveMediaUrl(url)}
-          target="_blank"
-          rel="noreferrer"
-          className="text-primary underline text-xs"
-        >
-          View
-        </a>
-
+        <Dialog>
+          <DialogTrigger asChild>
+            <button className="text-primary underline text-xs hover:text-primary/80 transition-colors">
+              View
+            </button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl border-none bg-transparent p-0 shadow-none sm:max-w-4xl">
+            <DialogHeader className="sr-only">
+              <DialogTitle>{label} Preview</DialogTitle>
+            </DialogHeader>
+            <div className="relative flex items-center justify-center p-4">
+              <img
+                src={resolveMediaUrl(url)}
+                alt={label}
+                className="max-h-[85vh] w-auto rounded-lg object-contain shadow-2xl"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   ) : null;
@@ -113,11 +131,11 @@ const ReviewStep = ({
 
         <ReviewRow
           label="Service Category"
-          value={resolveName(lookups.categories, serviceDetails.serviceCategory)}
+          value={resolveMultiple(lookups.categories, serviceDetails.serviceCategory)}
         />
         <ReviewRow
           label="Service Type"
-          value={resolveName(lookups.serviceTypes, serviceDetails.experience)}
+          value={resolveMultiple(lookups.serviceTypes, serviceDetails.experience)}
         />
         <ReviewRow
           label="Service Areas"

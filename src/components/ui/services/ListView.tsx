@@ -10,20 +10,10 @@ import {
   MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
+import { resolveMediaUrl } from "@/utils/mediaUrl";
 
 const ListView = ({ providers = [], serviceType }: any) => {
-  const { user } = useAuth();
   const navigate = useNavigate();
-
-  // 🔐 GLOBAL GUARD
-  const requireLogin = (cb?: () => void) => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    cb && cb();
-  };
 
   const mapProvider = (p: any) => ({
     id: p.id,
@@ -31,15 +21,12 @@ const ListView = ({ providers = [], serviceType }: any) => {
     company: p.business_name,
     phone: p.user_phone,
     whatsapp: p.whatsapp,
-    services: [p.service_type_name],
-    location:
-      p.service_areas_list?.length > 0
-        ? p.service_areas_list.map((a: any) => a.name).join(", ")
-        : `${p.city_name}, ${p.state_name}`,
+    services: [p.service_type_name || p.category_name],
+    location: `${p.business_address}, ${p.city_name}, ${p.state_name} - ${p.pincode}`,
     experience: p.experience?.replaceAll("_", " ") || "N/A",
     description: p.service_description,
     isVerified: p.verification_status === "VERIFIED",
-    avatar: p.profile_photo_url,
+    avatar: resolveMediaUrl(p.profile_photo_url),
     initials: p.business_name?.[0]?.toUpperCase() || "P",
   });
 
@@ -79,10 +66,8 @@ const ListView = ({ providers = [], serviceType }: any) => {
               <div
                 className="flex-1 p-4 lg:p-6 cursor-pointer"
                 onClick={() =>
-                  requireLogin(() =>
-                    navigate(
-                      `/services/home/${serviceType}/provider/${provider.id}`
-                    )
+                  navigate(
+                    `/services/home/${serviceType}/provider/${provider.id}`
                   )
                 }
               >
@@ -119,9 +104,7 @@ const ListView = ({ providers = [], serviceType }: any) => {
                   <Button
                     className="w-full bg-orange-500 hover:bg-orange-600 text-white"
                     onClick={() =>
-                      requireLogin(() =>
-                        window.open(`tel:${provider.phone}`)
-                      )
+                      window.open(`tel:${provider.phone}`)
                     }
                   >
                     <Phone className="w-4 h-4 mr-2" /> Call Now
@@ -133,11 +116,9 @@ const ListView = ({ providers = [], serviceType }: any) => {
                   <Button
                     className="w-full bg-green-500 hover:bg-green-600 text-white"
                     onClick={() =>
-                      requireLogin(() =>
-                        window.open(
-                          `https://wa.me/${provider.whatsapp.replace("+", "")}`,
-                          "_blank"
-                        )
+                      window.open(
+                        `https://wa.me/${provider.whatsapp.replace("+", "")}`,
+                        "_blank"
                       )
                     }
                   >
@@ -150,10 +131,8 @@ const ListView = ({ providers = [], serviceType }: any) => {
                   variant="outline"
                   className="w-full"
                   onClick={() =>
-                    requireLogin(() =>
-                      navigate(
-                        `/services/home/${serviceType}/provider/${provider.id}`
-                      )
+                    navigate(
+                      `/services/home/${serviceType}/provider/${provider.id}`
                     )
                   }
                 >
@@ -165,7 +144,7 @@ const ListView = ({ providers = [], serviceType }: any) => {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => requireLogin()}
+                    onClick={() => { }}
                   >
                     <Heart className="w-4 h-4" />
                   </Button>
@@ -173,7 +152,7 @@ const ListView = ({ providers = [], serviceType }: any) => {
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => requireLogin()}
+                    onClick={() => { }}
                   >
                     <Share2 className="w-4 h-4" />
                   </Button>

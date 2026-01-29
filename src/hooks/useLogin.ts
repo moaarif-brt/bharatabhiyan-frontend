@@ -12,9 +12,11 @@ export const useLogin = () => {
   const loginByEmail = async ({
     email,
     password,
+    redirectTo = "/",
   }: {
     email: string;
     password: string;
+    redirectTo?: string;
   }) => {
     try {
       setLoading(true);
@@ -28,7 +30,7 @@ export const useLogin = () => {
       });
 
       setLoading(false);
-      navigate("/");
+      navigate(redirectTo);
 
     } catch (error: any) {
       toast({

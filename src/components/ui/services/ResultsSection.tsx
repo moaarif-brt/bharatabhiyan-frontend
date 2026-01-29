@@ -10,6 +10,9 @@ const ResultsSection = ({
   providers = [],
   serviceType,
   clearAllFilters,
+  currentPage,
+  totalPages,
+  onPageChange,
 }: any) => {
   return (
     <main className="flex-1">
@@ -29,7 +32,13 @@ const ResultsSection = ({
         <MapView providers={providers} />
       )}
 
-      {!showNoResults && <PaginationBar />}
+      {!showNoResults && totalPages > 1 && (
+        <PaginationBar
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
+      )}
     </main>
   );
 };

@@ -1,4 +1,11 @@
 import { Upload, FileText, X, ExternalLink } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,6 +67,7 @@ const FileBox = ({
   </div>
 );
 
+
 const UploadedPreview = ({
   label,
   url,
@@ -74,14 +82,26 @@ const UploadedPreview = ({
       <div className="flex items-center gap-2 text-sm">
         <FileText className="w-4 h-4 text-primary" />
         <span>{label} uploaded</span>
-        <a
-          href={resolveMediaUrl(url)}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 text-primary underline"
-        >
-          View <ExternalLink className="w-3 h-3" />
-        </a>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <button className="inline-flex items-center gap-1 text-primary underline hover:text-primary/80 transition-colors">
+              View <ExternalLink className="w-3 h-3" />
+            </button>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl border-none bg-transparent p-0 shadow-none sm:max-w-4xl">
+            <DialogHeader className="sr-only">
+              <DialogTitle>{label} Preview</DialogTitle>
+            </DialogHeader>
+            <div className="relative flex items-center justify-center p-4">
+              <img
+                src={resolveMediaUrl(url)}
+                alt={label}
+                className="max-h-[85vh] w-auto rounded-lg object-contain shadow-2xl"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
       <Button size="sm" variant="outline" onClick={onReplace}>
         Replace
@@ -100,10 +120,9 @@ const UploadBox = ({
 }) => (
   <label
     className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg transition-colors
-      ${
-        disabled
-          ? "cursor-not-allowed opacity-50 bg-muted"
-          : "cursor-pointer hover:bg-muted/50 border-border"
+      ${disabled
+        ? "cursor-not-allowed opacity-50 bg-muted"
+        : "cursor-pointer hover:bg-muted/50 border-border"
       }
     `}
   >

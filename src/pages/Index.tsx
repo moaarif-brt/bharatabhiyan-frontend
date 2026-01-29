@@ -8,7 +8,7 @@ import ServiceCategories from "@/components/ui/home/ServiceCategories";
 import HowItWorks from "@/components/ui/home/HowItWorks";
 import GovernmentSchemes from "@/components/ui/home/GovernmentSchemes";
 import Testimonials from "@/components/ui/home/Testimonials";
-import Footer from "@/components/ui/home/Footer";
+import Footer from "@/components/layout/Footer";
 
 const Index = () => {
   const { user } = useAuth();
@@ -24,7 +24,7 @@ const Index = () => {
       <HowItWorks />
       <GovernmentSchemes />
       <Testimonials />
-      <Footer user={user} />
+      <Footer />
     </div>
   );
 };

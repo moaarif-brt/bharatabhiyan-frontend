@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
-import { 
-  Wrench, 
-  Zap, 
-  Paintbrush, 
-  Hammer, 
-  Snowflake, 
-  Sparkles, 
-  Truck, 
+import {
+  Wrench,
+  Zap,
+  Paintbrush,
+  Hammer,
+  Snowflake,
+  Sparkles,
+  Truck,
   Settings,
   Search,
   Star,
@@ -28,8 +28,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { useAuth } from "@/context/AuthContext";
 
 const Services = () => {
+  const { user } = useAuth();
   const serviceCategories = [
     {
       title: "Home Services",
@@ -89,13 +91,13 @@ const Services = () => {
           <p className="text-secondary-foreground/80 mb-8 max-w-2xl mx-auto">
             Find trusted and verified service providers for all your needs. All providers are Captain KYC verified.
           </p>
-          
+
           {/* Search Bar */}
           <div className="max-w-xl mx-auto flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input 
-                placeholder="Search for a service..." 
+              <Input
+                placeholder="Search for a service..."
                 className="pl-10 py-6 bg-background text-foreground"
               />
             </div>
@@ -115,7 +117,7 @@ const Services = () => {
                 <span className="w-1 h-6 bg-primary rounded-full"></span>
                 {category.title}
               </h2>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {category.services.map((service) => (
                   <Link
@@ -159,7 +161,7 @@ const Services = () => {
           </p>
           <Link to="/service-provider-registration">
             <Button className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8 py-6">
-              Become a Provider
+              {user?.is_provider ? "Profile" : "Become a Provider"}
             </Button>
           </Link>
         </div>

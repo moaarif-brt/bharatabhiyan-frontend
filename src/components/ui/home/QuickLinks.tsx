@@ -18,13 +18,12 @@ const QuickLinks = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickLinks.map((link, index) => (
-            <Link
+            <div
               key={index}
-              to="#"
-              className="flex items-center gap-3 p-4 border-l-4 border-primary text-secondary hover:text-primary transition-colors group"
+              className="flex items-center gap-3 p-4 border-l-4 border-primary text-secondary bg-white/50"
             >
               <span className="font-medium">{link}</span>
-            </Link>
+            </div>
           ))}
         </div>
 

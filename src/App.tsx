@@ -16,6 +16,9 @@ import PaymentHelp from "./pages/PaymentHelp";
 import FAQs from "./pages/FAQs";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import HelpCenter from "./pages/HelpCenter";
 import ServiceProviderRegistration from "./pages/ServiceProviderRegistration";
 import Services from "./pages/Services";
 import HomeServices from "./pages/services/HomeServices";
@@ -62,6 +65,9 @@ const App = () => (
             <Route path="/help/otp-not-received" element={<OTPHelp />} />
             <Route path="/help/payment-issues" element={<PaymentHelp />} />
             <Route path="/help/faqs" element={<FAQs />} />
+            <Route path="/help" element={<HelpCenter />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/service-provider-registration" element={<ServiceProviderRegistration />} />
             <Route path="/services" element={<Services />} />
             <Route path="/services/home/category/:categoryId" element={<HomeServiceTypes />} />
