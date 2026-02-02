@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import logoImage from "@/assets/bharat-logo.png";
-
+import headerLogo from "@/assets/header-logo.png";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
@@ -70,13 +70,7 @@ const Header = () => {
           {/* LOGO */}
           <Link to="/" className="flex items-center gap-3">
             <img src={logoImage} alt="Bharat Abhiyan" className="h-10" />
-            <div className="hidden sm:block">
-              <div className="text-xl font-bold">
-                <span className="text-accent">Bharat</span>
-                <span className="text-primary">Abhiyan</span>
-              </div>
-              <div className="text-sm text-secondary">Roaring India</div>
-            </div>
+            <img src={headerLogo} alt="Bharat Abhiyan" className="h-10 hidden sm:block mt-1" />
           </Link>
 
           {/* DESKTOP NAV */}
@@ -86,8 +80,8 @@ const Header = () => {
                 <DropdownMenu key={item.label}>
                   <DropdownMenuTrigger
                     className={`flex items-center gap-1 font-medium transition-colors ${location.pathname.startsWith("/services")
-                        ? "text-secondary border-b-2 border-primary pb-1"
-                        : "text-muted-foreground hover:text-secondary"
+                      ? "text-secondary border-b-2 border-primary pb-1"
+                      : "text-muted-foreground hover:text-secondary"
                       }`}
                   >
                     Services
@@ -109,8 +103,8 @@ const Header = () => {
                   key={item.label}
                   to={item.href}
                   className={`font-medium transition-colors ${isActive(item.href)
-                      ? "text-secondary border-b-2 border-primary pb-1"
-                      : "text-muted-foreground hover:text-secondary"
+                    ? "text-secondary border-b-2 border-primary pb-1"
+                    : "text-muted-foreground hover:text-secondary"
                     }`}
                 >
                   {item.label}
@@ -204,8 +198,8 @@ const Header = () => {
                     <Link
                       to={item.href}
                       className={`block px-4 py-3 rounded-lg text-sm font-medium ${isActive(item.href)
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:bg-muted"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted"
                         }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >

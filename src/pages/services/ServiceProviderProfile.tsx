@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
-import { 
-  ArrowLeft, 
-  Phone, 
-  MapPin, 
-  Clock, 
-  Star, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  Phone,
+  MapPin,
+  Clock,
+  Star,
+  CheckCircle,
   Heart,
   Share2,
   ThumbsUp,
@@ -32,59 +32,70 @@ import {
   Users,
   Award
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchProviderProfileByUserId } from "@/api/provider";
+import { resolveMediaUrl } from "@/utils/mediaUrl";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ServiceProviderProfile = () => {
   const { serviceType, providerId } = useParams();
   const [activeTab, setActiveTab] = useState("about");
   const [reviewFilter, setReviewFilter] = useState("all");
 
-  // Mock provider data
+  // Fetch provider details
+  const { data: response, isLoading, isError } = useQuery({
+    queryKey: ["provider-profile", providerId],
+    queryFn: () => fetchProviderProfileByUserId(providerId!),
+    enabled: !!providerId,
+  });
+
+  const apiData = response?.data;
+
+  // Map API data to component structure
   const provider = {
-    id: providerId || "1",
-    name: "Ramesh Sharma",
-    initials: "RS",
-    businessName: "Sharma Plumbing Services",
-    location: "Sector 1-20, Bhiwadi",
-    experience: "10+ Years Experience",
-    jobsCompleted: "500+ Jobs Completed",
-    rating: 4.9,
-    reviewCount: 127,
-    isVerified: true,
-    isKycVerified: true,
-    isFeatured: true,
-    isCaptainVerified: true,
-    phone: "+91 98765 43210",
-    startingPrice: 299,
+    id: apiData?.id || providerId || "1",
+    name: apiData?.user_name || "Service Provider",
+    initials: apiData?.business_name?.[0]?.toUpperCase() || "SP",
+    businessName: apiData?.business_name || "Business Name",
+    location: apiData?.business_address
+      ? `${apiData.business_address}, ${apiData.city_name || ''} - ${apiData.pincode || ''}`
+      : "Location Available Upon Request",
+    experience: apiData?.experience ? apiData.experience.replace(/_/g, " ") : "Experience N/A",
+    jobsCompleted: "500+ Jobs Completed", // Placeholder
+    rating: 4.8, // Placeholder
+    reviewCount: 127, // Placeholder
+    isVerified: apiData?.verification_status === "VERIFIED",
+    isKycVerified: true, // Placeholder
+    isFeatured: true, // Placeholder
+    isCaptainVerified: false, // Placeholder
+    phone: apiData?.user_phone || "N/A",
+    startingPrice: 299, // Placeholder
     availableToday: true,
     responseTime: "Usually within 30 mins",
     satisfactionRate: "98%",
-    about: `With over 10 years of experience in residential and commercial plumbing, I provide reliable and efficient plumbing services across Bhiwadi. My services include general plumbing repairs, pipeline installation, bathroom fittings, water tank maintenance, and emergency leak repairs.
-
-I take pride in delivering quality workmanship at fair prices. Customer satisfaction is my top priority, and I ensure all work is completed on time with minimal disruption to your daily routine. I use high-quality materials and modern techniques to ensure long-lasting solutions.`,
+    about: apiData?.service_description || "No description available for this service provider.",
     services: [
-      { name: "General Plumbing", price: 299, icon: "🔧" },
-      { name: "Bathroom Fitting", price: 499, icon: "🚿" },
-      { name: "Pipeline Installation", price: 999, icon: "🔧" },
-      { name: "Leak Repair", price: 199, icon: "💧" },
-      { name: "Water Tank Service", price: 599, icon: "🪣" },
-      { name: "Emergency Service", price: 499, icon: "🚨" },
+      {
+        name: apiData?.service_type_name || apiData?.category_name || "General Service",
+        price: 299,
+        icon: "🔧"
+      },
+      // Mock extra services for UI fullness
+      { name: "Consultation", price: 199, icon: "📋" },
+      { name: "Emergency Visit", price: 499, icon: "🚨" },
     ],
     pricing: [
       { service: "Visit Charge", description: "Basic inspection and diagnosis", price: "₹299", note: "per visit" },
-      { service: "Tap Repair / Replacement", description: "Fixing leaky taps, washer replacement", price: "₹199 - ₹499", note: "depending on type" },
-      { service: "Pipe Leak Repair", description: "Minor to moderate pipe leaks", price: "₹299 - ₹799", note: "depending on severity" },
-      { service: "Toilet Installation", description: "Complete toilet fitting with accessories", price: "₹999 - ₹1,999", note: "labour only" },
-      { service: "Bathroom Renovation", description: "Complete bathroom plumbing work", price: "₹4,999+", note: "quote on inspection" },
-      { service: "Emergency / After Hours", description: "Urgent repairs outside business hours", price: "+50%", note: "additional charges" },
+      { service: "Hourly Rate", description: "Standard labor charge", price: "₹499", note: "per hour" },
     ],
-    serviceAreas: ["Sector 1-10", "Sector 11-20", "Sector 21-30", "Ashiana Town", "RIICO Area", "Tapukara"],
+    serviceAreas: apiData?.city_name ? [apiData.city_name, "Surrounding Areas"] : ["Local Area"],
     verifications: [
-      "Identity Verified (Aadhaar)",
+      "Identity Verified",
       "Address Verified",
-      "Business Location Verified",
-      "Skills Assessment Passed"
+      "Business Location Verified"
     ],
     reviews: [
+      // Keep mock reviews for UI demonstration
       {
         id: 1,
         name: "Priya Sharma",
@@ -92,8 +103,8 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
         location: "Sector 5, Bhiwadi",
         rating: 5,
         date: "2 days ago",
-        comment: "Excellent service! Ramesh ji came on time and fixed our bathroom leak quickly. Very professional and reasonable pricing. Highly recommended for any plumbing work.",
-        service: "Leak Repair",
+        comment: "Excellent service! Very professional.",
+        service: "General Service",
         helpfulCount: 12
       },
       {
@@ -103,20 +114,9 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
         location: "Sector 12, Bhiwadi",
         rating: 5,
         date: "1 week ago",
-        comment: "Got my entire bathroom renovated by Ramesh ji. Amazing work quality and completed within the promised time. The fittings are perfect and the finishing is excellent. Will definitely hire again.",
-        service: "Bathroom Fitting",
+        comment: "Completed work within time. Good job.",
+        service: "Repair",
         helpfulCount: 8
-      },
-      {
-        id: 3,
-        name: "Meera Verma",
-        initials: "MV",
-        location: "Ashiana Town, Bhiwadi",
-        rating: 4,
-        date: "2 weeks ago",
-        comment: "Good service overall. Fixed our water tank issue. Was slightly delayed but called ahead to inform. Work quality is good.",
-        service: "Water Tank Service",
-        helpfulCount: 3
       }
     ],
     ratingBreakdown: {
@@ -127,9 +127,9 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
       1: 1
     },
     similarProviders: [
+      // Mock similar providers
       { id: "2", name: "Anil Kumar", initials: "AK", service: "Plumber", rating: 4.7, price: 249 },
-      { id: "3", name: "Suresh Yadav", initials: "SY", service: "Plumber", rating: 4.8, price: 199 },
-      { id: "4", name: "Manoj Kumar", initials: "MK", service: "Plumber", rating: 4.6, price: 499 }
+      { id: "3", name: "Suresh Yadav", initials: "SY", service: "Plumber", rating: 4.8, price: 199 }
     ]
   };
 
@@ -137,10 +137,51 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8 space-y-8">
+          <Skeleton className="h-12 w-full max-w-sm rounded" />
+          <Skeleton className="h-64 w-full rounded-xl" />
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex flex-col items-center">
+              <Skeleton className="h-32 w-32 rounded-lg" />
+            </div>
+            <div className="space-y-4 flex-1">
+              <Skeleton className="h-10 w-1/2" />
+              <Skeleton className="h-4 w-1/3" />
+              <div className="flex gap-4 mt-4">
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-32" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-xl font-bold text-red-500">Error loading profile</h2>
+            <p className="text-muted-foreground">Please try again later.</p>
+            <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>Retry</Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
+
       <main className="flex-1">
         {/* Breadcrumb */}
         <div className="bg-muted/30 border-b">
@@ -157,7 +198,7 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 <span className="text-foreground font-medium">{provider.name}</span>
               </nav>
-              <Link 
+              <Link
                 to={`/services/home/${serviceType}`}
                 className="text-primary hover:underline flex items-center gap-1 text-sm"
               >
@@ -208,10 +249,10 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
                         </Badge>
                       )}
                     </div>
-                    
+
                     <h1 className="text-2xl font-bold text-foreground mb-1">{provider.name}</h1>
                     <p className="text-muted-foreground mb-3">{provider.businessName}</p>
-                    
+
                     <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
                       <span className="flex items-center gap-1">
                         <MapPin className="h-4 w-4 text-red-500" />
@@ -228,10 +269,10 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
                     <div className="flex items-center gap-2">
                       <div className="flex items-center text-yellow-500">
                         {[...Array(5)].map((_, i) => (
-                          <Star 
-                            key={i} 
-                            className="h-5 w-5" 
-                            fill={i < Math.floor(provider.rating) ? "currentColor" : "none"} 
+                          <Star
+                            key={i}
+                            className="h-5 w-5"
+                            fill={i < Math.floor(provider.rating) ? "currentColor" : "none"}
                           />
                         ))}
                       </div>
@@ -248,7 +289,7 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="w-full justify-start border-b rounded-none bg-transparent h-auto p-0 mb-6">
                   {["About", "Services", "Gallery", "Pricing", "Availability", `Reviews (${provider.reviewCount})`].map((tab) => (
-                    <TabsTrigger 
+                    <TabsTrigger
                       key={tab}
                       value={tab.toLowerCase().split(" ")[0]}
                       className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
@@ -267,7 +308,7 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
                     <div className="text-muted-foreground whitespace-pre-line mb-6">
                       {provider.about}
                     </div>
-                    
+
                     {/* Stats */}
                     <div className="grid grid-cols-3 gap-4">
                       <div className="bg-muted/30 rounded-lg p-4 text-center border">
@@ -439,7 +480,7 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
                     <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
                       <Star className="h-5 w-5 text-yellow-500" /> Reviews & Ratings
                     </h2>
-                    
+
                     {/* Rating Summary */}
                     <div className="flex flex-col md:flex-row gap-8 mb-8">
                       <div className="flex flex-col items-center justify-center p-6 bg-primary/5 rounded-lg min-w-[150px]">
@@ -451,17 +492,17 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
                         </div>
                         <div className="text-sm text-muted-foreground">{provider.reviewCount} reviews</div>
                       </div>
-                      
+
                       <div className="flex-1 space-y-2">
-                          {[5, 4, 3, 2, 1].map((stars) => (
+                        {[5, 4, 3, 2, 1].map((stars) => (
                           <div key={stars} className="flex items-center gap-3">
                             <div className="flex items-center text-sm w-8">
                               {[...Array(stars)].map((_, i) => (
                                 <Star key={i} className="h-3 w-3 text-yellow-500" fill="currentColor" />
                               ))}
                             </div>
-                            <Progress 
-                              value={(provider.ratingBreakdown[stars as keyof typeof provider.ratingBreakdown] / provider.reviewCount) * 100} 
+                            <Progress
+                              value={(provider.ratingBreakdown[stars as keyof typeof provider.ratingBreakdown] / provider.reviewCount) * 100}
                               className="h-3 flex-1"
                             />
                             <span className="text-sm text-muted-foreground w-8">
@@ -475,7 +516,7 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
                     {/* Review Filters */}
                     <div className="flex flex-wrap gap-2 mb-6">
                       {["All Reviews", "5 Star (108)", "4 Star (13)", "With Photos"].map((filter) => (
-                        <Button 
+                        <Button
                           key={filter}
                           variant={reviewFilter === filter.toLowerCase().split(" ")[0] ? "default" : "outline"}
                           size="sm"
@@ -549,7 +590,7 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
                   <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                   Available Today
                 </div>
-                
+
                 <div className="space-y-3">
                   <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
                     <Phone className="h-4 w-4 mr-2" />
@@ -642,7 +683,7 @@ I take pride in delivering quality workmanship at fair prices. Customer satisfac
                 </h3>
                 <div className="space-y-4">
                   {provider.similarProviders.map((sp) => (
-                    <Link 
+                    <Link
                       key={sp.id}
                       to={`/services/home/${serviceType}/provider/${sp.id}`}
                       className="flex items-center gap-3 hover:bg-muted/50 p-2 rounded-lg transition-colors"

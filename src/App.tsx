@@ -23,6 +23,7 @@ import ServiceProviderRegistration from "./pages/ServiceProviderRegistration";
 import Services from "./pages/Services";
 import HomeServices from "./pages/services/HomeServices";
 import GovernmentServices from "./pages/services/GovernmentServices";
+import GovernmentServiceDetails from "./pages/services/GovernmentServiceDetails";
 import EmergencyServices from "./pages/services/EmergencyServices";
 import HomeServiceTypes from "./pages/services/HomeServiceTypes";
 import ServiceProviderListing from "./pages/services/ServiceProviderListing";
@@ -76,6 +77,7 @@ const App = () => (
             <Route path="/services/home/category/:categoryId/service/:serviceType" element={<ServiceProviderListing />} />
             <Route path="/services/home/:serviceType/provider/:providerId" element={<ServiceProviderProfile />} />
             <Route path="/services/government" element={<GovernmentServices />} />
+            <Route path="/services/government/:id" element={<GovernmentServiceDetails />} />
             <Route path="/services/emergency" element={<EmergencyServices />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

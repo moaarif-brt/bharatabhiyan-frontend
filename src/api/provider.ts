@@ -1,11 +1,11 @@
-import {api} from "@/lib/api"; // axios instance with auth interceptor
+import { api } from "@/lib/api"; // axios instance with auth interceptor
 
 export const saveProviderDraft = (data: FormData) =>
   api.post("/providers/profile", data, {
     headers: { "Content-Type": "multipart/form-data" }
   });
 
-  export const createRegistrationPayment = async (userId: number) => {
+export const createRegistrationPayment = async (userId: number) => {
   const res = await api.post("/payments/registration/create-link", {
     user_id: userId,
   });
@@ -20,6 +20,12 @@ export const submitProviderProfile = (data: FormData) =>
 
 export const fetchProviderProfile = () =>
   api.get("/providers/profile/me");
+
+export const fetchProviderProfileByUserId = (userId: string | number) =>
+  api.post("/providers/profile/me", {
+    user_id: userId,
+  });
+
 
 
 export const fetchServiceCategories = () =>

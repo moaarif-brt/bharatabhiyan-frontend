@@ -128,7 +128,7 @@ const GridView = ({ providers = [], serviceType }: any) => {
                   )
                 }
               >
-                Profile
+                View Profile
               </Button>
             </div>
           </div>
