@@ -49,7 +49,7 @@ const ServiceProviderProfile = () => {
     enabled: !!providerId,
   });
 
-  const apiData = response?.data;
+  const apiData = response?.data?.data;
 
   // Map API data to component structure
   const provider = {
@@ -58,9 +58,9 @@ const ServiceProviderProfile = () => {
     initials: apiData?.business_name?.[0]?.toUpperCase() || "SP",
     businessName: apiData?.business_name || "Business Name",
     location: apiData?.business_address
-      ? `${apiData.business_address}, ${apiData.city_name || ''} - ${apiData.pincode || ''}`
+      ? `${apiData.business_address}, ${apiData.city_name || ''}, ${apiData.state_name || ''} - ${apiData.pincode || ''}`
       : "Location Available Upon Request",
-    experience: apiData?.experience ? apiData.experience.replace(/_/g, " ") : "Experience N/A",
+    experience: apiData?.experience ? `${apiData.experience.replace(/_/g, " ").replace("TO", "-")} Years` : "Experience N/A",
     jobsCompleted: "500+ Jobs Completed", // Placeholder
     rating: 4.8, // Placeholder
     reviewCount: 127, // Placeholder
@@ -68,7 +68,7 @@ const ServiceProviderProfile = () => {
     isKycVerified: true, // Placeholder
     isFeatured: true, // Placeholder
     isCaptainVerified: false, // Placeholder
-    phone: apiData?.user_phone || "N/A",
+    phone: apiData?.whatsapp_number || apiData?.user_phone || "N/A",
     startingPrice: 299, // Placeholder
     availableToday: true,
     responseTime: "Usually within 30 mins",
@@ -79,16 +79,15 @@ const ServiceProviderProfile = () => {
         name: apiData?.service_type_name || apiData?.category_name || "General Service",
         price: 299,
         icon: "🔧"
-      },
-      // Mock extra services for UI fullness
-      { name: "Consultation", price: 199, icon: "📋" },
-      { name: "Emergency Visit", price: 499, icon: "🚨" },
+      }
     ],
     pricing: [
       { service: "Visit Charge", description: "Basic inspection and diagnosis", price: "₹299", note: "per visit" },
       { service: "Hourly Rate", description: "Standard labor charge", price: "₹499", note: "per hour" },
     ],
-    serviceAreas: apiData?.city_name ? [apiData.city_name, "Surrounding Areas"] : ["Local Area"],
+    serviceAreas: apiData?.service_areas_list?.length
+      ? apiData.service_areas_list.map((area: any) => area.name)
+      : (apiData?.city_name ? [apiData.city_name] : ["Local Area"]),
     verifications: [
       "Identity Verified",
       "Address Verified",

@@ -1,4 +1,4 @@
-import { api } from "@/lib/api"; // axios instance with auth interceptor
+import { api, publicApi } from "@/lib/api";
 
 export const saveProviderDraft = (data: FormData) =>
   api.post("/providers/profile", data, {
@@ -11,6 +11,7 @@ export const createRegistrationPayment = async (userId: number) => {
   });
   return res.data; // { payment_url, payment_id }
 };
+
 export const submitProviderProfile = (data: FormData) =>
   api.post("/providers/profile", data, {
     headers: {
@@ -22,18 +23,15 @@ export const fetchProviderProfile = () =>
   api.get("/providers/profile/me");
 
 export const fetchProviderProfileByUserId = (userId: string | number) =>
-  api.post("/providers/profile/me", {
+  publicApi.post("/providers/profile/me", {
     user_id: userId,
   });
 
-
-
 export const fetchServiceCategories = () =>
-  api.get("/providers/categories");
+  publicApi.get("/providers/categories");
 
 export const fetchServiceTypes = () =>
-  api.get("/providers/service-types");
+  publicApi.get("/providers/service-types");
 
 export const fetchServiceAreas = (cityId: string) =>
-  api.get(`/providers/service-areas?location_id=${cityId}`);
-
+  publicApi.get(`/providers/service-areas?location_id=${cityId}`);
