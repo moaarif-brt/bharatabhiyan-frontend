@@ -1,20 +1,14 @@
-import { CheckCircle, LayoutDashboard, Eye, FileText } from "lucide-react";
+import { CheckCircle, LayoutDashboard, Eye, FileText, PartyPopper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
+
 interface SuccessStepProps {
-  selectedPlan: string;
+  profile: any;
 }
 
-const SuccessStep = ({ selectedPlan }: SuccessStepProps) => {
+const SuccessStep = ({ profile }: SuccessStepProps) => {
   const navigate = useNavigate();
-
-  const planDetails = {
-    monthly: { name: "Monthly (1 slot)", validUntil: "17 Feb 2024" },
-    yearly: { name: "Yearly (3 slots)", validUntil: "17 Jan 2025" },
-  };
-
-  const plan = planDetails[selectedPlan as keyof typeof planDetails] || planDetails.yearly;
 
   const nextSteps = [
     "Complete your profile by adding more photos of your work",
@@ -29,7 +23,7 @@ const SuccessStep = ({ selectedPlan }: SuccessStepProps) => {
       {/* Header Banner */}
       <div className="bg-green-600 text-white rounded-lg p-4 sm:p-6">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">🎉</span>
+          <PartyPopper className="w-6 h-6" />
           <h2 className="text-xl sm:text-2xl font-bold">Welcome Aboard!</h2>
         </div>
         <p className="text-white/90 mt-1">Your service listing is now active</p>
@@ -37,36 +31,38 @@ const SuccessStep = ({ selectedPlan }: SuccessStepProps) => {
 
       {/* Success Content */}
       <div className="text-center py-6">
-        <div className="text-5xl mb-4">🎉</div>
+        <div className="mb-4 flex justify-center">
+          <PartyPopper className="w-12 h-12 text-primary" />
+        </div>
         <h3 className="text-2xl font-bold text-foreground mb-2">Registration Complete!</h3>
         <p className="text-muted-foreground max-w-md mx-auto">
-          Congratulations! Your service provider account is now active. Customers in Bhiwadi can now find and contact you for services.
+          Congratulations! Your service provider account is now active. Customers in {profile?.city_name} can now find and contact you for services.
         </p>
       </div>
 
       {/* Account Details */}
       <div className="bg-muted/50 rounded-lg p-4 sm:p-6 space-y-3">
         <div className="flex justify-between items-center py-2 border-b border-border">
-          <span className="text-muted-foreground">Provider ID</span>
-          <span className="font-semibold text-foreground">BA-PRV-2024-00156</span>
+          <span className="text-muted-foreground">Application ID</span>
+          <span className="font-semibold text-foreground">{profile?.application_id}</span>
         </div>
         <div className="flex justify-between items-center py-2 border-b border-border">
-          <span className="text-muted-foreground">Plan</span>
-          <span className="font-semibold text-foreground">{plan.name}</span>
+          <span className="text-muted-foreground">Business Name</span>
+          <span className="font-semibold text-foreground">{profile?.business_name}</span>
         </div>
         <div className="flex justify-between items-center py-2 border-b border-border">
-          <span className="text-muted-foreground">Valid Until</span>
-          <span className="font-semibold text-foreground">{plan.validUntil}</span>
+          <span className="text-muted-foreground">Category</span>
+          <span className="font-semibold text-foreground">{profile?.category_name}</span>
         </div>
         <div className="flex justify-between items-center py-2 border-b border-border">
-          <span className="text-muted-foreground">Payment ID</span>
-          <span className="font-semibold text-foreground">pay_NxYz123456</span>
+          <span className="text-muted-foreground">Service Type</span>
+          <span className="font-semibold text-foreground">{profile?.service_type_name}</span>
         </div>
         <div className="flex justify-between items-center py-2">
           <span className="text-muted-foreground">Status</span>
           <span className="font-semibold text-green-600 flex items-center gap-1">
             <CheckCircle className="w-4 h-4" />
-            Active
+            {profile?.verification_status}
           </span>
         </div>
       </div>

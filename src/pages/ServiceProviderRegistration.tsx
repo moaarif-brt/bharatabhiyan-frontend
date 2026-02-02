@@ -486,7 +486,7 @@ const ServiceProviderRegistration = () => {
                     />
                   )}
 
-                  {currentStep === 7 && <SuccessStep selectedPlan={selectedPlan} />}
+                  {currentStep === 7 && <SuccessStep profile={profile} />}
 
                   {currentStep <= 4 && !isDraft && (
                     <div className="flex justify-between mt-8 pt-6 border-t">
