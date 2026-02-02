@@ -5,7 +5,7 @@ import {
   Instagram,
   Youtube,
 } from "lucide-react";
-import logoImage from "@/assets/logo.jpeg";
+import logoImage from "@/assets/logo.png";
 import { useAuth } from "@/context/AuthContext";
 
 const Footer = () => {

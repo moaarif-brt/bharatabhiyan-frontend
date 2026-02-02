@@ -107,12 +107,12 @@ const Register = () => {
 
   return (
     <PageLayout
-      title="Create Your Account"
-      subtitle="Register to access local services in Bhiwadi"
+      title="Create Provider Account"
+      subtitle="Register your business to start getting customers"
       breadcrumbs={[
         { label: "Home", href: "/" },
         { label: "Services", href: "/" },
-        { label: "Create Account" },
+        { label: "Provider Registration" },
       ]}
     >
       <div className="bg-card rounded-lg border border-border p-4 sm:p-6 lg:p-8">
@@ -127,8 +127,8 @@ const Register = () => {
               <input
                 type="text"
                 className={`input-field border-2 transition-all ${fieldErrors.fullName
-                    ? "border-red-500 bg-red-50 dark:bg-red-950/20 focus:border-red-500"
-                    : "border-border"
+                  ? "border-red-500 bg-red-50 dark:bg-red-950/20 focus:border-red-500"
+                  : "border-border"
                   }`}
                 placeholder="Enter your full name"
                 value={formData.fullName}
@@ -195,17 +195,17 @@ const Register = () => {
             <div className="space-y-4">
               <div
                 className={`p-4 rounded-lg border-2 transition-all ${showValidationErrors && !agreedToTerms
-                    ? "border-red-500 bg-red-50 dark:bg-red-950/20"
-                    : "border-border bg-background"
+                  ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                  : "border-border bg-background"
                   }`}
               >
                 <label className="flex items-start gap-3 cursor-pointer">
                   <div
                     className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${agreedToTerms
-                        ? "bg-primary border-primary"
-                        : showValidationErrors && !agreedToTerms
-                          ? "border-red-500 bg-background"
-                          : "border-input bg-background"
+                      ? "bg-primary border-primary"
+                      : showValidationErrors && !agreedToTerms
+                        ? "border-red-500 bg-background"
+                        : "border-input bg-background"
                       }`}
                     onClick={() => {
                       setAgreedToTerms(!agreedToTerms);
@@ -241,17 +241,17 @@ const Register = () => {
 
               <div
                 className={`p-4 rounded-lg border-2 transition-all ${showValidationErrors && !certifyInfo
-                    ? "border-red-500 bg-red-50 dark:bg-red-950/20"
-                    : "border-border bg-background"
+                  ? "border-red-500 bg-red-50 dark:bg-red-950/20"
+                  : "border-border bg-background"
                   }`}
               >
                 <label className="flex items-start gap-3 cursor-pointer">
                   <div
                     className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${certifyInfo
-                        ? "bg-primary border-primary"
-                        : showValidationErrors && !certifyInfo
-                          ? "border-red-500 bg-background"
-                          : "border-input bg-background"
+                      ? "bg-primary border-primary"
+                      : showValidationErrors && !certifyInfo
+                        ? "border-red-500 bg-background"
+                        : "border-input bg-background"
                       }`}
                     onClick={() => {
                       setCertifyInfo(!certifyInfo);

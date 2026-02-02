@@ -42,12 +42,12 @@ const Login = () => {
 
   return (
     <PageLayout
-      title="Sign In to Your Account"
-      subtitle="Access local services and government schemes in your area"
+      title="Service Provider Login"
+      subtitle="Manage your profile and services"
       breadcrumbs={[
         { label: "Home", href: "/" },
         { label: "Services", href: "/" },
-        { label: "Sign In" },
+        { label: "Provider Login" },
       ]}
     >
       <div className="bg-card rounded-lg border border-border p-4 sm:p-6 lg:p-8">
@@ -56,12 +56,12 @@ const Login = () => {
           <div className="flex items-start gap-3">
             <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-secondary text-sm sm:text-base">New to BharatAbhiyan?</h3>
+              <h3 className="font-semibold text-secondary text-sm sm:text-base">For Service Providers</h3>
               <p className="text-muted-foreground text-xs sm:text-sm mt-1">
-                Create an account to access verified local service providers and government schemes.
+                Join our platform to list your services and reach thousands of customers.
               </p>
-              <Link to="/register" className="text-primary font-semibold hover:underline text-sm mt-2 inline-block">
-                Register now
+              <Link to="/register?redirect=/service-provider-registration" className="text-primary font-semibold hover:underline text-sm mt-2 inline-block">
+                Register as Provider
               </Link>
             </div>
           </div>
@@ -120,10 +120,10 @@ const Login = () => {
         <p className="text-center text-sm text-muted-foreground mt-6">
           Don't have an account?{" "}
           <Link
-            to="/register"
+            to="/register?redirect=/service-provider-registration"
             className="font-semibold text-primary hover:underline"
           >
-            Register Now
+            Register as Provider
           </Link>
         </p>
       </div>
