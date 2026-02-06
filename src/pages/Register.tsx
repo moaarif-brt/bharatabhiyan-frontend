@@ -218,17 +218,17 @@ const Register = () => {
                   </div>
                   <span className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                     I agree to the{" "}
-                    <a href="#" className="text-primary hover:underline">
+                    <Link to="/terms" className="text-primary hover:underline">
                       Terms of Service
-                    </a>
+                    </Link>
                     ,{" "}
-                    <a href="#" className="text-primary hover:underline">
+                    <Link to="/privacy" className="text-primary hover:underline">
                       Privacy Policy
-                    </a>
+                    </Link>
                     , and consent to the collection of my data as described in the{" "}
-                    <a href="#" className="text-primary hover:underline">
+                    <Link to="/privacy" className="text-primary hover:underline">
                       Data Protection Notice
-                    </a>
+                    </Link>
                     .
                   </span>
                 </label>

@@ -32,12 +32,14 @@ import {
   Users,
   Award
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { fetchProviderProfileByUserId } from "@/api/provider";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ServiceProviderProfile = () => {
+  const { toast } = useToast();
   const { serviceType, providerId } = useParams();
   const [activeTab, setActiveTab] = useState("about");
   const [reviewFilter, setReviewFilter] = useState("all");
@@ -55,36 +57,36 @@ const ServiceProviderProfile = () => {
   const provider = {
     id: apiData?.id || providerId || "1",
     name: apiData?.user_name || "Service Provider",
-    initials: apiData?.business_name?.[0]?.toUpperCase() || "SP",
+    initials: (apiData?.user_name || "SP").match(/\b(\w)/g)?.join("").slice(0, 2).toUpperCase() || "SP",
     businessName: apiData?.business_name || "Business Name",
     location: apiData?.business_address
       ? `${apiData.business_address}, ${apiData.city_name || ''}, ${apiData.state_name || ''} - ${apiData.pincode || ''}`
       : "Location Available Upon Request",
-    experience: apiData?.experience ? `${apiData.experience.replace(/_/g, " ").replace("TO", "-")} Years` : "Experience N/A",
-    jobsCompleted: "500+ Jobs Completed", // Placeholder
+    experience: apiData?.experience ? `${apiData.experience.replace(/_/g, " ").replace("TO", "-").toLowerCase().replace(/\b\w/g, l => l.toUpperCase())} Years` : "Experience N/A",
+    jobsCompleted: "Verified Provider", // Placeholder as API doesn't have job count yet
     rating: 4.8, // Placeholder
     reviewCount: 127, // Placeholder
     isVerified: apiData?.verification_status === "VERIFIED",
     isKycVerified: true, // Placeholder
     isFeatured: true, // Placeholder
     isCaptainVerified: false, // Placeholder
-    phone: apiData?.whatsapp_number || apiData?.user_phone || "N/A",
-    startingPrice: 299, // Placeholder
+    phone: apiData?.whatsapp_number || apiData?.user_phone || apiData?.user_email || "N/A",
+    startingPrice: apiData?.service_costs?.length ? Math.min(...apiData.service_costs.map((c: any) => c.price)) : "N/A",
     availableToday: true,
     responseTime: "Usually within 30 mins",
     satisfactionRate: "98%",
     about: apiData?.service_description || "No description available for this service provider.",
-    services: [
-      {
-        name: apiData?.service_type_name || apiData?.category_name || "General Service",
-        price: 299,
-        icon: "🔧"
-      }
-    ],
-    pricing: [
-      { service: "Visit Charge", description: "Basic inspection and diagnosis", price: "₹299", note: "per visit" },
-      { service: "Hourly Rate", description: "Standard labor charge", price: "₹499", note: "per hour" },
-    ],
+    services: apiData?.service_types_list?.map((s: any) => ({
+      name: s.name,
+      price: apiData.service_costs?.find((c: any) => c.service_type_id === s.id)?.price || "On Request",
+      icon: "🔧"
+    })) || [],
+    pricing: apiData?.service_costs?.map((c: any) => ({
+      service: c.service_type__name,
+      description: "Standard service charge",
+      price: `₹${c.price}`,
+      note: "per visit"
+    })) || [],
     serviceAreas: apiData?.service_areas_list?.length
       ? apiData.service_areas_list.map((area: any) => area.name)
       : (apiData?.city_name ? [apiData.city_name] : ["Local Area"]),
@@ -598,9 +600,9 @@ const ServiceProviderProfile = () => {
                   <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
                     <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
                   </Button>
-                  <Button variant="outline" className="w-full bg-white text-slate-800 hover:bg-slate-100">
+                  {/* <Button variant="outline" className="w-full bg-white text-slate-800 hover:bg-slate-100">
                     <FileText className="h-4 w-4 mr-2" /> Request Quote
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
 
@@ -631,11 +633,21 @@ const ServiceProviderProfile = () => {
 
               {/* Quick Actions */}
               <div className="flex gap-2">
-                <Button variant="outline" className="flex-1">
+                {/* <Button variant="outline" className="flex-1">
                   <Heart className="h-4 w-4 mr-1" />
                   Save
-                </Button>
-                <Button variant="outline" className="flex-1">
+                </Button> */}
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast({
+                      title: "Link Copied!",
+                      description: "Profile URL has been copied to your clipboard.",
+                    });
+                  }}
+                >
                   <Share2 className="h-4 w-4 mr-1" />
                   Share
                 </Button>

@@ -79,9 +79,11 @@ const HeroSection = ({ user }: { user: any }) => {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <Button className="bg-primary hover:bg-primary-dark text-primary-foreground px-8 py-6 text-lg rounded-lg">
-                Find Services <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
+              <Link to="/services/all">
+                <Button className="bg-primary hover:bg-primary-dark text-primary-foreground px-8 py-6 text-lg rounded-lg">
+                  Find Services <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
 
               {user && (
                 <Link to="/service-provider-registration">

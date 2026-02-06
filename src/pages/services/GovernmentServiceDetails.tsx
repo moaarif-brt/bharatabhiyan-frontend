@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { fetchGovernmentServiceDetails, fetchAIGuide } from "@/api/government";
+import { fetchGovernmentServiceDetails, fetchServiceAnswer } from "@/api/government";
 import Header from "@/components/layout/Header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, ChevronRight, FileText, ArrowRight, Bot, Loader2 } from "lucide-react";
@@ -18,6 +18,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const GovernmentServiceDetails = () => {
     const { id } = useParams();
     const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null);
+    const [selectedQuestionId, setSelectedQuestionId] = useState<number | string | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [language, setLanguage] = useState("english");
 
@@ -27,23 +28,24 @@ const GovernmentServiceDetails = () => {
         enabled: !!id,
     });
 
-    const { mutate: getAIGuide, isPending: isAiLoading, data: aiData, reset: resetAi } = useMutation({
-        mutationFn: ({ question, lang }: { question: string, lang: string }) => fetchAIGuide(question, lang),
+    const { mutate: getAnswer, isPending: isAiLoading, data: aiData, reset: resetAi } = useMutation({
+        mutationFn: ({ questionId, lang }: { questionId: number | string, lang: string }) => fetchServiceAnswer(questionId, lang),
     });
 
-    const handleQuestionClick = (question: string) => {
-        setSelectedQuestion(question);
+    const handleQuestionClick = (questionId: number, questionText: string) => {
+        setSelectedQuestion(questionText);
+        setSelectedQuestionId(questionId);
         setLanguage("english"); // Reset language to default on new question
         resetAi();
         setIsDialogOpen(true);
-        getAIGuide({ question, lang: "english" });
+        getAnswer({ questionId, lang: "english" });
     };
 
     const handleLanguageChange = (lang: string) => {
-        if (!selectedQuestion) return;
+        if (!selectedQuestionId) return;
         setLanguage(lang);
         resetAi();
-        getAIGuide({ question: selectedQuestion, lang });
+        getAnswer({ questionId: selectedQuestionId, lang });
     };
 
     const details = response?.data;
@@ -113,7 +115,7 @@ const GovernmentServiceDetails = () => {
                             {details.questions.map((item) => (
                                 <div
                                     key={item.id}
-                                    onClick={() => handleQuestionClick(item.question)}
+                                    onClick={() => handleQuestionClick(item.id, item.question)}
                                     className="bg-card rounded-xl p-6 border border-border hover:shadow-lg transition-all hover:border-primary/50 group cursor-pointer"
                                 >
                                     <div className="flex items-start gap-4">
@@ -146,7 +148,7 @@ const GovernmentServiceDetails = () => {
                         <div className="flex items-center justify-between pr-8">
                             <DialogTitle className="flex items-center gap-2 text-xl">
                                 <Bot className="w-6 h-6 text-primary" />
-                                AI Assistant Guide
+                                Service Guide
                             </DialogTitle>
 
                             <div className="flex gap-2">
@@ -178,13 +180,37 @@ const GovernmentServiceDetails = () => {
                             <div className="flex flex-col items-center justify-center h-full py-20 space-y-4">
                                 <Loader2 className="w-10 h-10 text-primary animate-spin" />
                                 <p className="text-muted-foreground animate-pulse">
-                                    Generating guide in {language === "english" ? "English" : "Hindi"}...
+                                    Fetching guide in {language === "english" ? "English" : "Hindi"}...
                                 </p>
                             </div>
                         ) : aiData ? (
                             <div className="prose prose-sm dark:prose-invert max-w-none">
                                 <div className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
-                                    {aiData.data.data.response}
+                                    {(() => {
+                                        const text = aiData.data.answer;
+                                        // Improved Regex to match URLs with multi-part domains (e.g. uidai.gov.in)
+                                        const urlRegex = /((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/g;
+
+                                        const parts = text.split(urlRegex);
+
+                                        return parts.map((part, i) => {
+                                            if (part.match(urlRegex)) {
+                                                const href = part.startsWith("http") ? part : `https://${part}`;
+                                                return (
+                                                    <a
+                                                        key={i}
+                                                        href={href}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-primary underline hover:text-primary/80"
+                                                    >
+                                                        {part}
+                                                    </a>
+                                                );
+                                            }
+                                            return part;
+                                        });
+                                    })()}
                                 </div>
                             </div>
                         ) : (

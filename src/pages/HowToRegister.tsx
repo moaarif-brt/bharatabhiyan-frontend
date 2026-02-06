@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
 
 const HowToRegister = () => {
@@ -11,7 +12,7 @@ const HowToRegister = () => {
     <PageLayout breadcrumbs={breadcrumbs} title="How to Register">
       <div className="bg-card rounded-lg border border-border p-6 space-y-6">
         <h2 className="text-xl font-semibold text-secondary">Step-by-Step Registration Guide</h2>
-        
+
         <div className="space-y-4">
           <div className="flex gap-4">
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">1</div>
@@ -33,7 +34,7 @@ const HowToRegister = () => {
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">3</div>
             <div>
               <h3 className="font-medium text-foreground">Accept Terms & Conditions</h3>
-              <p className="text-muted-foreground text-sm mt-1">Read and agree to our Terms of Service and Privacy Policy.</p>
+              <p className="text-muted-foreground text-sm mt-1">Read and agree to our <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.</p>
             </div>
           </div>
 

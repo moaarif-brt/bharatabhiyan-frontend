@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Check, FileText, Image as ImageIcon } from "lucide-react";
 import {
   Dialog,
@@ -86,10 +87,37 @@ const FileRow = ({
     </div>
   ) : null;
 
+const getNames = (list: any[], ids?: string) =>
+  ids
+    ? ids
+      .split(",")
+      .map((id) => resolveName(list, id))
+      .filter((name) => name !== "—")
+    : [];
 
+const ReviewBadgeList = ({ label, items }: { label: string; items: string[] }) => (
+  <div className="space-y-2 py-1">
+    <span className="text-sm text-muted-foreground">{label}</span>
+    <div className="flex flex-wrap gap-2">
+      {items.length > 0 ? (
+        items.map((item, i) => (
+          <span
+            key={i}
+            className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20"
+          >
+            {item}
+          </span>
+        ))
+      ) : (
+        <span className="text-sm font-medium">—</span>
+      )}
+    </div>
+  </div>
+);
 const ReviewStep = ({
   basicInfo,
   serviceDetails,
+  serviceCosts,
   documents,
   documentMeta,
   lookups,
@@ -123,26 +151,55 @@ const ReviewStep = ({
         <ReviewRow label="Address" value={basicInfo.business_address} />
       </div>
 
+
+
       {/* SERVICE DETAILS */}
-      <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-        <h3 className="font-medium flex items-center gap-2">
+      <div className="bg-muted/50 rounded-lg p-4 space-y-4">
+        <h3 className="font-medium flex items-center gap-2 mb-2">
           <Check className="w-4 h-4 text-green-500" /> Service Details
         </h3>
 
-        <ReviewRow
-          label="Service Category"
-          value={resolveMultiple(lookups.categories, serviceDetails.serviceCategory)}
+        <ReviewBadgeList
+          label="Service Categories"
+          items={getNames(lookups.categories, serviceDetails.serviceCategory)}
         />
-        <ReviewRow
-          label="Service Type"
-          value={resolveMultiple(lookups.serviceTypes, serviceDetails.experience)}
+
+        <ReviewBadgeList
+          label="Service Types"
+          items={getNames(lookups.serviceTypes, serviceDetails.experience)}
         />
-        <ReviewRow
+
+        <ReviewBadgeList
           label="Service Areas"
-          value={resolveMultiple(lookups.serviceAreas, serviceDetails.serviceAreas)}
+          items={getNames(lookups.serviceAreas, serviceDetails.serviceAreas)}
         />
-        <ReviewRow label="Description" value={serviceDetails.serviceDescription} />
+
+        <div className="pt-2 border-t border-border/50">
+          <ReviewRow label="Description" value={serviceDetails.serviceDescription} />
+        </div>
       </div>
+
+      {/* PRICING */}
+      {serviceCosts && Object.keys(serviceCosts).length > 0 && (
+        <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+          <h3 className="font-medium flex items-center gap-2">
+            <Check className="w-4 h-4 text-green-500" /> Service Pricing
+          </h3>
+
+          {Object.entries(serviceCosts)
+            .filter(([_, price]) => price && parseFloat(price as string) > 0)
+            .map(([typeId, price]) => {
+              const serviceType = lookups.serviceTypes.find((t: any) => String(t.id) === typeId);
+              return (
+                <ReviewRow
+                  key={typeId}
+                  label={serviceType?.name || "Service"}
+                  value={`₹${price}`}
+                />
+              );
+            })}
+        </div>
+      )}
 
       {/* DOCUMENTS */}
       <div className="bg-muted/50 rounded-lg p-4 space-y-2">
@@ -187,15 +244,12 @@ const ReviewStep = ({
       {/* TERMS */}
       <div className="flex items-start gap-3 p-4 border rounded-lg">
         <Checkbox
-          checked={readOnly ? true : termsAccepted}
-          disabled={readOnly}
-          onCheckedChange={(v) => !readOnly && onTermsChange(v as boolean)}
+          checked={termsAccepted}
+          onCheckedChange={(v) => onTermsChange(v as boolean)}
         />
 
-        <Label className="text-sm">
-          {readOnly
-            ? "You have already confirmed these details"
-            : "I confirm all details are correct and agree to Terms & Privacy Policy"}
+        <Label className="text-sm cursor-pointer">
+          I confirm all details are correct and agree to <Link to="/terms" className="text-primary hover:underline">Terms</Link> & <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
         </Label>
 
       </div>

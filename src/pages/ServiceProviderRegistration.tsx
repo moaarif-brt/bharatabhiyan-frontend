@@ -5,6 +5,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import RegistrationStepsSidebar from "@/components/registration/RegistrationStepsSidebar";
 import BasicInfoStep from "@/components/registration/BasicInfoStep";
 import ServiceDetailsStep from "@/components/registration/ServiceDetailsStep";
+import PricingStep from "@/components/registration/PricingStep";
 import DocumentsStep from "@/components/registration/DocumentsStep";
 import ReviewStep from "@/components/registration/ReviewStep";
 import CaptainVerificationStep from "@/components/registration/CaptainVerificationStep";
@@ -61,6 +62,10 @@ const ServiceProviderRegistration = () => {
 
 
 
+  const [serviceCosts, setServiceCosts] = useState<{
+    [serviceTypeId: string]: string;
+  }>({});
+
   const [documents, setDocuments] = useState({
     aadhaar_front: null as File | null,
     aadhaar_back: null as File | null,
@@ -103,13 +108,13 @@ const ServiceProviderRegistration = () => {
 
     switch (data.verification_status) {
       case "DRAFT":
-        return hasAllRequired ? 5 : 1;
+        return hasAllRequired ? 6 : 1;
 
       case "REJECTED":
-        return 5;
+        return 6;
 
       case "PENDING_VERIFICATION":
-        return 5;
+        return 6;
 
       case "VERIFIED":
         return 7; // Go to Success if verified
@@ -153,10 +158,14 @@ const ServiceProviderRegistration = () => {
       pincode: data.pincode || "",
     });
 
-    // STEP 2
+    // STEP 2 - Service Details
     setServiceDetails({
-      serviceCategory: String(data.service_category || ""),
-      experience: String(data.service_type || ""),
+      serviceCategory: data.categories
+        ? data.categories.map((c: any) => c.id).join(",")
+        : "",
+      experience: data.service_types_list
+        ? data.service_types_list.map((st: any) => st.id).join(",")
+        : "",
       serviceAreas: data.service_areas_list
         ? data.service_areas_list.map((a: any) => a.id).join(",")
         : "",
@@ -164,6 +173,13 @@ const ServiceProviderRegistration = () => {
       availability: data.availability || [],
       workingHours: data.working_hours || "",
     });
+
+    // PRICING
+    const costsMap: { [key: string]: string } = {};
+    (data.service_costs || []).forEach((cost: any) => {
+      costsMap[String(cost.service_type_id)] = String(cost.price);
+    });
+    setServiceCosts(costsMap);
 
     // STEP 3 (FILES — only metadata, NOT File objects)
     setDocuments((prev) => ({
@@ -270,23 +286,7 @@ const ServiceProviderRegistration = () => {
       }
     }
 
-    try {
-      const payload = buildDraftPayload({
-        service_category: serviceDetails.serviceCategory,
-        service_description: serviceDetails.serviceDescription,
-        experience: serviceDetails.experience,
-        service_areas: serviceDetails.serviceAreas,
-        ...documents,
-      });
-
-      setCurrentStep((s) => s + 1);
-    } catch (err: any) {
-      toast({
-        title: "Save failed",
-        description: err.response?.data?.message || "Unable to save draft",
-        variant: "destructive",
-      });
-    }
+    setCurrentStep((s) => s + 1);
   };
 
 
@@ -329,6 +329,18 @@ const ServiceProviderRegistration = () => {
         fd.append("service_areas", areaId);
       });
 
+
+      // SERVICE COSTS (PRICING)
+      const costsArray = Object.entries(serviceCosts)
+        .filter(([_, price]) => price && parseFloat(price) > 0)
+        .map(([serviceTypeId, price]) => ({
+          service_type: parseInt(serviceTypeId),
+          price: parseFloat(price)
+        }));
+
+      if (costsArray.length > 0) {
+        fd.append('service_costs', JSON.stringify(costsArray));
+      }
 
       // DOCUMENTS
       if (documents.aadhaar_front)
@@ -388,28 +400,35 @@ const ServiceProviderRegistration = () => {
     },
     {
       number: 3,
-      title: "Documents",
-      subtitle: "ID & address proof",
+      title: "Pricing",
+      subtitle: "Set your service rates",
       completed: currentStep > 3,
       current: currentStep === 3,
     },
     {
       number: 4,
-      title: "Review & Submit",
-      subtitle: "Verify your details",
+      title: "Documents",
+      subtitle: "ID & address proof",
       completed: currentStep > 4,
       current: currentStep === 4,
     },
     {
       number: 5,
+      title: "Review & Submit",
+      subtitle: "Verify your details",
+      completed: currentStep > 5,
+      current: currentStep === 5,
+    },
+    {
+      number: 6,
       title: "Captain Verification",
       subtitle: "In-person KYC & Payment",
       completed: profile?.verification_status === "VERIFIED" || profile?.verification_status === "ACTIVE",
-      current: currentStep === 5,
+      current: currentStep === 6,
     },
   ].filter(step => {
-    // Hide Captain Verification (Step 5) if already verified or active
-    if (step.number === 5 && (profile?.verification_status === "VERIFIED" || profile?.verification_status === "ACTIVE")) {
+    // Hide Captain Verification (Step 6) if already verified or active
+    if (step.number === 6 && (profile?.verification_status === "VERIFIED" || profile?.verification_status === "ACTIVE")) {
       return false;
     }
     return true;
@@ -429,7 +448,8 @@ const ServiceProviderRegistration = () => {
                 <RegistrationStepsSidebar
                   steps={steps}
                   onStepClick={(step) => {
-                    if (step < currentStep || (profile && step <= resolveStepFromProfile(profile))) {
+                    // Allow navigation to any step up to current step or completed steps
+                    if (step <= currentStep) {
                       setCurrentStep(step);
                     }
                   }}
@@ -457,6 +477,15 @@ const ServiceProviderRegistration = () => {
                   )}
 
                   {currentStep === 3 && !isLocked && (
+                    <PricingStep
+                      selectedServiceTypes={serviceDetails.experience.split(',').filter(Boolean)}
+                      serviceCosts={serviceCosts}
+                      onChange={setServiceCosts}
+                      lookups={lookups}
+                    />
+                  )}
+
+                  {currentStep === 4 && !isLocked && (
                     <DocumentsStep
                       data={documents}
                       documentMeta={documentMeta}
@@ -465,10 +494,11 @@ const ServiceProviderRegistration = () => {
                     />
                   )}
 
-                  {currentStep === 4 && (
+                  {currentStep === 5 && (
                     <ReviewStep
                       basicInfo={basicInfo}
                       serviceDetails={serviceDetails}
+                      serviceCosts={serviceCosts}
                       documents={documents}
                       documentMeta={documentMeta}
                       lookups={lookups}
@@ -478,17 +508,17 @@ const ServiceProviderRegistration = () => {
                     />
                   )}
 
-                  {currentStep === 5 && profile && (
+                  {currentStep === 6 && profile && (
                     <CaptainVerificationStep
                       profile={profile}
-                      onViewApplication={() => setCurrentStep(4)}
+                      onViewApplication={() => setCurrentStep(5)}
                       onResubmit={() => setCurrentStep(1)}
                     />
                   )}
 
                   {currentStep === 7 && <SuccessStep profile={profile} />}
 
-                  {currentStep <= 4 && !isDraft && (
+                  {currentStep <= 5 && (
                     <div className="flex justify-between mt-8 pt-6 border-t">
                       <Button
                         variant="outline"
@@ -498,7 +528,7 @@ const ServiceProviderRegistration = () => {
                         Previous
                       </Button>
 
-                      {currentStep < 4 ? (
+                      {currentStep < 5 ? (
                         <Button onClick={handleNext}>Next</Button>
                       ) : (
                         <Button onClick={handleSubmit}>

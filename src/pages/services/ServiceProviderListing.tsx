@@ -24,6 +24,7 @@ const ServiceProviderListing = () => {
   }>();
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 🔑 QUERY PARAMS
   const [searchParams] = useSearchParams();
@@ -51,6 +52,7 @@ const ServiceProviderListing = () => {
   // ✅ FILTER STATES (INTERNAL)
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const config = {
     title:
@@ -97,17 +99,25 @@ const ServiceProviderListing = () => {
   }, [serviceTypesParam, areasParam, serviceType]);
 
   const handleSearchUpdate = () => {
-    let query = "";
-    const types = selectedTypes.length > 0 ? selectedTypes.join(",") : "";
-    const areas = selectedAreas.length > 0 ? selectedAreas.join(",") : "";
+    const parts = [];
+    if (selectedTypes.length > 0) parts.push(`service_types=${selectedTypes.join(",")}`);
+    if (selectedAreas.length > 0) parts.push(`service_areas=${selectedAreas.join(",")}`);
 
-    if (types) query += `service_types=${types}`;
-    if (areas) {
-      if (query) query += `${query ? "&" : ""}service_areas=${areas}`;
+    // Always reset to page 1 for new search
+    const query = parts.join("&");
+    const targetPath = `/services/home/search`;
+    const targetSearch = `?${query}&page=1`;
+    const fullTarget = `${targetPath}${targetSearch}`;
+
+    // If effectively same URL, force refresh
+    if (
+      (location.pathname === targetPath || location.pathname.includes("/services/home/search")) &&
+      location.search === targetSearch
+    ) {
+      setRefreshTrigger(prev => prev + 1);
+    } else {
+      navigate(fullTarget);
     }
-
-    // Always switch to the generic "search" route when using the multi-select filter bar
-    navigate(`/services/home/search?${query}&page=1`);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -130,7 +140,7 @@ const ServiceProviderListing = () => {
         let res;
 
         // 🔹 FLOW 3: MULTI-SELECT SEARCH (Sync with all possible params)
-        if (serviceTypesParam || areasParam || categoriesParam) {
+        if (serviceType === "search" || serviceTypesParam || areasParam || categoriesParam) {
           res = await searchProviders(
             categoriesParam || "",
             serviceTypesParam || "",
@@ -170,7 +180,7 @@ const ServiceProviderListing = () => {
 
     fetchProviders();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [serviceType, categoryId, areaId, categoriesParam, areasParam, currentPage]);
+  }, [serviceType, categoryId, areaId, categoriesParam, areasParam, currentPage, refreshTrigger]);
 
   return (
     <div className="min-h-screen bg-gray-50">

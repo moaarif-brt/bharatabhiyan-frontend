@@ -26,15 +26,6 @@ const QuickLinks = () => {
             </div>
           ))}
         </div>
-
-        <div className="text-center mt-8">
-          <Link
-            to="#services"
-            className="text-secondary font-medium hover:text-primary inline-flex items-center gap-1 transition-colors"
-          >
-            Jump to all topics and services <ArrowDown className="w-4 h-4" />
-          </Link>
-        </div>
       </div>
     </section>
   );

@@ -22,18 +22,17 @@ export const fetchGovernmentServiceDetails = (serviceId: number | string) =>
         service_id: serviceId
     });
 
-export interface AIGuideResponse {
-    success: boolean;
-    data: {
-        response: string;
-        language: string;
-        question: string;
-    };
-    message?: string;
+export interface ServiceAnswerResponse {
+    question_id: string;
+    question: string;
+    service_name: string;
+    answer: string;
 }
 
-export const fetchAIGuide = (question: string, language: string = "english") =>
-    api.post<AIGuideResponse>("/ai/guide/", {
-        question,
-        language
+export const fetchServiceAnswer = (questionId: number | string, language: string = "english") =>
+    api.get<ServiceAnswerResponse>(`/service-answer/`, {
+        params: {
+            question_id: questionId,
+            language
+        }
     });

@@ -21,6 +21,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import HelpCenter from "./pages/HelpCenter";
 import ServiceProviderRegistration from "./pages/ServiceProviderRegistration";
 import Services from "./pages/Services";
+import AllServices from "./pages/services/AllServices";
 import HomeServices from "./pages/services/HomeServices";
 import GovernmentServices from "./pages/services/GovernmentServices";
 import GovernmentServiceDetails from "./pages/services/GovernmentServiceDetails";
@@ -71,6 +72,7 @@ const App = () => (
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/service-provider-registration" element={<ServiceProviderRegistration />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/services/all" element={<AllServices />} />
             <Route path="/services/home/category/:categoryId" element={<HomeServiceTypes />} />
             <Route path="/services/home" element={<HomeServices />} />
             <Route path="/services/home/:serviceType" element={<ServiceProviderListing />} />

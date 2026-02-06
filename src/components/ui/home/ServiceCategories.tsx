@@ -67,8 +67,8 @@ const ServiceCategories = () => {
                 </p>
                 <div
                   className={`font-medium text-sm inline-flex items-center gap-1 ${category.isEmergency
-                      ? "text-destructive"
-                      : "text-secondary hover:text-primary"
+                    ? "text-destructive"
+                    : "text-secondary hover:text-primary"
                     } transition-colors ${category.isDisabled ? "opacity-50" : ""}`}
                 >
                   {category.isDisabled ? "Coming Soon" : (category.isEmergency ? "Get help now" : "Learn more")}{" "}
@@ -81,7 +81,7 @@ const ServiceCategories = () => {
 
         <div className="text-center mt-10">
           <Link
-            to="#"
+            to="/services/all"
             className="text-secondary font-medium hover:text-primary inline-flex items-center gap-1 transition-colors"
           >
             View all 50+ service categories <ArrowRight className="w-4 h-4" />
