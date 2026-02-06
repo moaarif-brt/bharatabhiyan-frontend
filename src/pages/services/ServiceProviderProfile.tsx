@@ -593,11 +593,30 @@ const ServiceProviderProfile = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                  <Button
+                    className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                    onClick={() => {
+                      if (provider.phone && provider.phone !== "N/A" && !provider.phone.includes('@')) {
+                        window.location.href = `tel:${provider.phone}`;
+                      } else {
+                        toast({ title: "Phone number not available", variant: "destructive" });
+                      }
+                    }}
+                  >
                     <Phone className="h-4 w-4 mr-2" />
                     Call Now
                   </Button>
-                  <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
+                  <Button
+                    className="w-full bg-green-500 hover:bg-green-600 text-white"
+                    onClick={() => {
+                      if (provider.phone && provider.phone !== "N/A" && !provider.phone.includes('@')) {
+                        const cleaned = provider.phone.replace(/\D/g, "");
+                        window.open(`https://wa.me/${cleaned}`, '_blank');
+                      } else {
+                        toast({ title: "WhatsApp number not available", variant: "destructive" });
+                      }
+                    }}
+                  >
                     <MessageCircle className="h-4 w-4 mr-2" /> WhatsApp
                   </Button>
                   {/* <Button variant="outline" className="w-full bg-white text-slate-800 hover:bg-slate-100">
