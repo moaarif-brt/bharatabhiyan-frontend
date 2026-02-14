@@ -40,9 +40,8 @@ const TitleAndViewBar = ({
             <p className="text-muted-foreground text-sm">
               {config.count === 0
                 ? "No verified service providers found"
-                : `Showing ${config.count} verified service provider${
-                    config.count > 1 ? "s" : ""
-                  }`}
+                : `Showing ${config.count} verified service provider${config.count > 1 ? "s" : ""
+                }`}
             </p>
           </div>
 
@@ -50,22 +49,20 @@ const TitleAndViewBar = ({
             <div className="flex items-center border rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode("list")}
-                className={`px-3 py-2 flex items-center gap-1.5 text-sm ${
-                  viewMode === "list"
+                className={`px-3 py-2 flex items-center gap-1.5 text-sm ${viewMode === "list"
                     ? "bg-primary text-white"
                     : "bg-white text-foreground hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <List className="w-4 h-4" />
                 List
               </button>
               <button
                 onClick={() => setViewMode("grid")}
-                className={`px-3 py-2 flex items-center gap-1.5 text-sm border-l ${
-                  viewMode === "grid"
+                className={`px-3 py-2 flex items-center gap-1.5 text-sm border-l ${viewMode === "grid"
                     ? "bg-primary text-white"
                     : "bg-white text-foreground hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <LayoutGrid className="w-4 h-4" />
                 Grid
@@ -83,7 +80,7 @@ const TitleAndViewBar = ({
               </button> */}
             </div>
 
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Sort by:</span>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[160px]">
@@ -97,7 +94,7 @@ const TitleAndViewBar = ({
                   <SelectItem value="reviews">Most Reviews</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

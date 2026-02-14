@@ -11,9 +11,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { resolveMediaUrl } from "@/utils/mediaUrl";
+import { useToast } from "@/hooks/use-toast";
 
 const ListView = ({ providers = [], serviceType }: any) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const mapProvider = (p: any) => ({
     id: p.id,
@@ -141,18 +143,25 @@ const ListView = ({ providers = [], serviceType }: any) => {
 
                 {/* HEART / SHARE */}
                 <div className="flex gap-2 justify-center">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => { }}
-                  >
-                    <Heart className="w-4 h-4" />
-                  </Button>
+                  {/* <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => { }}
+                    >
+                      <Heart className="w-4 h-4" />
+                    </Button> */}
 
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => { }}
+                    onClick={() => {
+                      const url = `${window.location.origin}/services/home/${serviceType}/provider/${provider.id}`;
+                      navigator.clipboard.writeText(url);
+                      toast({
+                        title: "Link Copied!",
+                        description: "Provider profile URL has been copied to your clipboard.",
+                      });
+                    }}
                   >
                     <Share2 className="w-4 h-4" />
                   </Button>

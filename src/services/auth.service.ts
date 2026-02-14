@@ -4,6 +4,8 @@ export interface RegisterPayload {
   name: string;
   email: string;
   password: string;
+  is_captain?: boolean;
+  is_provider?: boolean;
 }
 
 export interface LoginPayload {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Loader2, ArrowRight, Check } from "lucide-react";
+import { Loader2, ArrowRight, Check, User, Briefcase, Anchor } from "lucide-react";
 import PageLayout from "@/components/layout/PageLayout";
 import AuthTabs from "@/components/auth/AuthTabs";
 import PhoneInput from "@/components/auth/PhoneInput";
@@ -14,8 +14,9 @@ const Register = () => {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";
 
-  const { registerByEmail, registerByPhone, loading } = useRegister(); // ✅ hook
+  const { registerByEmail, registerByPhone, loading } = useRegister();
   const [activeTab, setActiveTab] = useState<"phone" | "email">("phone");
+  const [role, setRole] = useState<"provider" | "captain">("provider"); // Role Selection
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [certifyInfo, setCertifyInfo] = useState(false);
   const [showValidationErrors, setShowValidationErrors] = useState(false);
@@ -96,29 +97,53 @@ const Register = () => {
       return;
     }
 
-    // 📧 Email registration → payment
+    // 📧 Email registration
     registerByEmail({
       name: formData.fullName,
       email: formData.email,
       password: formData.password,
-      redirectTo
+      is_captain: role === "captain",
+      is_provider: role === "provider",
+      redirectTo: role === "captain" ? "/captain/dashboard" : role === "provider" ? "/provider/dashboard" : redirectTo
     });
   };
 
   return (
     <PageLayout
-      title="Create Provider Account"
-      subtitle="Register your business to start getting customers"
+      title="Create Account"
+      subtitle="Join as a Provider or Captain"
       breadcrumbs={[
         { label: "Home", href: "/" },
-        { label: "Services", href: "/" },
-        { label: "Provider Registration" },
+        { label: "Register" },
       ]}
     >
-      <div className="bg-card rounded-lg border border-border p-4 sm:p-6 lg:p-8">
+      <div className="bg-card rounded-lg border border-border p-4 sm:p-6 lg:p-8 max-w-xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* UI untouched */}
+          {/* Role Selection */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-foreground">I want to join as:</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div
+                onClick={() => setRole("provider")}
+                className={`cursor-pointer border-2 rounded-lg p-3 flex flex-col items-center justify-center gap-2 transition-all ${role === "provider" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                  }`}
+              >
+                <Briefcase className={`w-6 h-6 ${role === "provider" ? "text-primary" : "text-muted-foreground"}`} />
+                <span className={`text-sm font-medium ${role === "provider" ? "text-primary" : "text-foreground"}`}>Provider</span>
+              </div>
+              <div
+                onClick={() => setRole("captain")}
+                className={`cursor-pointer border-2 rounded-lg p-3 flex flex-col items-center justify-center gap-2 transition-all ${role === "captain" ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                  }`}
+              >
+                <Anchor className={`w-6 h-6 ${role === "captain" ? "text-primary" : "text-muted-foreground"}`} />
+                <span className={`text-sm font-medium ${role === "captain" ? "text-primary" : "text-foreground"}`}>Captain</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Personal Information */}
           <div>
             <h2 className="text-lg font-semibold text-foreground mb-4">
               Personal Information

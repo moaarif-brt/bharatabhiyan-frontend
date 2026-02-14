@@ -18,6 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 import {
   saveProviderDraft,
   submitProviderProfile,
+  submitProviderApplication,
   fetchProviderProfile,
   fetchServiceCategories,
   fetchServiceTypes,
@@ -237,6 +238,15 @@ const ServiceProviderRegistration = () => {
     }
   }, [user]);
 
+  // Redirect if already submitted/verified
+  useEffect(() => {
+    if (profile && (profile.verification_status === "PENDING_VERIFICATION" ||
+      profile.verification_status === "VERIFIED" ||
+      profile.verification_status === "ACTIVE")) {
+      navigate("/provider/dashboard");
+    }
+  }, [profile, navigate]);
+
   /* ---------------- FORM HANDLERS ---------------- */
 
   const handleBasicInfoChange = (field: string, value: string) => {
@@ -362,6 +372,14 @@ const ServiceProviderRegistration = () => {
       );
 
       await submitProviderProfile(fd);
+
+      // Call the final submit API
+      await submitProviderApplication({
+        confirm_declaration: true,
+        accept_terms: true,
+        consent_kyc: true,
+      });
+
       await hydrateProfile();
 
     } catch (err: any) {

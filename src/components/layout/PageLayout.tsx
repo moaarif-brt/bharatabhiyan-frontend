@@ -8,13 +8,14 @@ interface PageLayoutProps {
   breadcrumbs?: { label: string; href?: string }[];
   title: string;
   subtitle?: string;
+  hideSidebar?: boolean;
 }
 
-const PageLayout = ({ children, breadcrumbs, title, subtitle }: PageLayoutProps) => {
+const PageLayout = ({ children, breadcrumbs, title, subtitle, hideSidebar = false }: PageLayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      
+
       {/* Breadcrumbs */}
       {breadcrumbs && (
         <div className="bg-background border-b border-border">
@@ -52,16 +53,18 @@ const PageLayout = ({ children, breadcrumbs, title, subtitle }: PageLayoutProps)
       {/* Main Content */}
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className={`grid grid-cols-1 ${hideSidebar ? '' : 'lg:grid-cols-3'} gap-6 lg:gap-8`}>
             {/* Main Content Area */}
-            <div className="lg:col-span-2 order-1">
+            <div className={`${hideSidebar ? 'w-full' : 'lg:col-span-2'} order-1`}>
               {children}
             </div>
-            
+
             {/* Sidebar */}
-            <div className="lg:col-span-1 order-2">
-              <Sidebar />
-            </div>
+            {!hideSidebar && (
+              <div className="lg:col-span-1 order-2">
+                <Sidebar />
+              </div>
+            )}
           </div>
         </div>
       </main>

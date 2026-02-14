@@ -185,33 +185,47 @@ const GovernmentServiceDetails = () => {
                             </div>
                         ) : aiData ? (
                             <div className="prose prose-sm dark:prose-invert max-w-none">
-                                <div className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
-                                    {(() => {
-                                        const text = aiData.data.answer;
-                                        // Improved Regex to match URLs with multi-part domains (e.g. uidai.gov.in)
-                                        const urlRegex = /((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/g;
+                                {(() => {
+                                    const answer = aiData.data.answer;
+                                    // Check if content looks like HTML (starts with < and contains tags)
+                                    const isHtml = /<[a-z][\s\S]*>/i.test(answer);
 
-                                        const parts = text.split(urlRegex);
+                                    if (isHtml) {
+                                        return (
+                                            <div
+                                                className="service-guide-content"
+                                                dangerouslySetInnerHTML={{ __html: answer }}
+                                            />
+                                        );
+                                    }
 
-                                        return parts.map((part, i) => {
-                                            if (part.match(urlRegex)) {
-                                                const href = part.startsWith("http") ? part : `https://${part}`;
-                                                return (
-                                                    <a
-                                                        key={i}
-                                                        href={href}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-primary underline hover:text-primary/80"
-                                                    >
-                                                        {part}
-                                                    </a>
-                                                );
-                                            }
-                                            return part;
-                                        });
-                                    })()}
-                                </div>
+                                    // Fallback for plain text: preserve whitespace and linkify
+                                    return (
+                                        <div className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
+                                            {(() => {
+                                                const urlRegex = /((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+\.[a-zA-Z]{2,}(?:\/[^\s]*)?)/g;
+                                                const parts = answer.split(urlRegex);
+                                                return parts.map((part, i) => {
+                                                    if (part.match(urlRegex)) {
+                                                        const href = part.startsWith("http") ? part : `https://${part}`;
+                                                        return (
+                                                            <a
+                                                                key={i}
+                                                                href={href}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-primary underline hover:text-primary/80"
+                                                            >
+                                                                {part}
+                                                            </a>
+                                                        );
+                                                    }
+                                                    return part;
+                                                });
+                                            })()}
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         ) : (
                             <div className="text-center py-12 text-muted-foreground">

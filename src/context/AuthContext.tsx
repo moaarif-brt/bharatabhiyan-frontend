@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.setItem("refresh", refresh);
 
     setUser(userData);
+    return userData;
   };
 
   const logout = () => {

@@ -22,7 +22,7 @@ export const useLogin = () => {
       setLoading(true);
 
       // 📧 Email login - authenticate directly
-      await login(email, password);
+      const user = await login(email, password);
 
       toast({
         title: "Login Successful",
@@ -30,7 +30,16 @@ export const useLogin = () => {
       });
 
       setLoading(false);
-      navigate(redirectTo);
+
+      if (user?.is_captain) {
+        navigate("/captain/dashboard");
+      } else if (user?.is_provider_register && !user?.is_provider) {
+        navigate("/service-provider-registration");
+      } else if (user?.is_provider) {
+        navigate("/provider/dashboard");
+      } else {
+        navigate(redirectTo);
+      }
 
     } catch (error: any) {
       toast({

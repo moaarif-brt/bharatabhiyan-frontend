@@ -15,11 +15,15 @@ export const useRegister = () => {
     name,
     email,
     password,
+    is_captain,
+    is_provider,
     redirectTo = "/dashboard",
   }: {
     name: string;
     email: string;
     password: string;
+    is_captain?: boolean;
+    is_provider?: boolean;
     redirectTo?: string;
   }) => {
     try {
@@ -30,6 +34,8 @@ export const useRegister = () => {
         name,
         email,
         password,
+        is_captain,
+        is_provider,
       });
 
       // Store user data
@@ -40,14 +46,29 @@ export const useRegister = () => {
         sessionStorage.setItem("user_email", registerRes.email);
       }
 
+      // Store Captain specific data
+      if (is_captain && registerRes.user?.captain_code) {
+        sessionStorage.setItem("captain_code", registerRes.user.captain_code);
+        sessionStorage.setItem("is_captain", "true");
+      }
+
       toast({
         title: "Registration Successful",
-        description: "Your account has been created successfully!",
+        description: is_captain
+          ? "Account created! Please complete verification."
+          : "Your account has been created successfully!",
         variant: "default",
       });
 
       setLoading(false);
-      navigate(redirectTo);
+
+      if (is_captain) {
+        navigate("/captain/verification");
+      } else if (is_provider) {
+        navigate("/service-provider-registration");
+      } else {
+        navigate(redirectTo);
+      }
 
     } catch (error: any) {
       setLoading(false);

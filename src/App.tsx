@@ -31,6 +31,10 @@ import ServiceProviderListing from "./pages/services/ServiceProviderListing";
 import ServiceProviderProfile from "./pages/services/ServiceProviderProfile";
 import PostPaymentChoice from "./pages/PostPaymentChoice";
 import NotFound from "./pages/NotFound";
+import CaptainDashboard from "./pages/captain/CaptainDashboard";
+import ProviderDashboard from "./pages/provider/ProviderDashboard";
+
+import CaptainVerification from "./pages/captain/CaptainVerification";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +64,9 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/dashboard" element={<PostPaymentChoice />} />
+            <Route path="/captain/verification" element={<CaptainVerification />} />
+            <Route path="/captain/dashboard" element={<CaptainDashboard />} />
+            <Route path="/provider/dashboard" element={<ProviderDashboard />} />
             <Route path="/verify-otp" element={<VerifyOTP />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/help/how-to-register" element={<HowToRegister />} />

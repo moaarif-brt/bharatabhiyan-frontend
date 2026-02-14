@@ -37,10 +37,14 @@ const Header = () => {
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Services", href: "/services", hasDropdown: true },
-    {
-      label: user?.is_provider ? "Profile" : "Become a Provider",
-      href: "/service-provider-registration"
-    },
+    // Dashboard for Providers/Captains, otherwise "Become a Provider/Captain"
+    ...(user?.is_provider ? [{ label: "Dashboard", href: "/provider/dashboard" }] :
+      user?.is_captain ? [{ label: "Dashboard", href: "/captain/dashboard" }] :
+        [{
+          label: "Become a Provider/Captain",
+          href: user?.is_provider_register ? "/service-provider-registration" : "/register"
+        }]
+    ),
     { label: "About Us", href: "/about" },
     { label: "Contact", href: "/contact" },
   ];
